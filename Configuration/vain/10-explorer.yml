@@ -1,0 +1,466 @@
+---
+# ======================================================================
+#  10 - Explorer and quality of life
+#
+#  Explorer behaviour, context menus, folders, console look,
+#  visual effects and other quality-of-life settings.
+# ======================================================================
+
+actions:
+  # Visual and Quality of Life
+  - !status: {status: 'Configuring Explorer'}
+
+  - !registryValue: {path: 'HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell', value: 'Logo', type: REG_SZ, data: 'imageres.dll,-3'}
+
+  # Remove Folder Preview
+  - !cmd: {command: 'DEL /F /S /Q /A %LocalAppData%\Microsoft\Windows\Explorer\thumbcache_*.db >nul 2>&1', exeDir: true, wait: true}
+
+  # Indexing
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Search\Preferences', value: 'WholeFileSystem', type: REG_DWORD, data: '1'}
+
+  # RDC
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server', value: 'fDenyTSConnections', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp', value: 'SecurityLayer', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp', value: 'UserAuthentication', type: REG_DWORD, data: '0'}
+
+  # Toast Notifications
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance', value: 'Enabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.BackupReminder', value: 'Enabled', type: REG_DWORD, data: '0'}
+
+  # Storage Sense
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\StorageSense', value: 'AllowStorageSenseGlobal', type: REG_DWORD, data: '0'} #Disallow storage sense
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy', value: '04', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy', value: '01', type: REG_DWORD, data: '0'}
+
+  # Remove W11 Settings Banner
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\ValueBanner.IdealStateFeatureControlProvider', value: 'ActivationType', type: REG_DWORD, data: '0'}
+
+  # Disable Accessibility Features
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\HighContrast', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\Keyboard Response', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\MouseKeys', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\StickyKeys', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\ToggleKeys', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\TimeOut', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\SoundSentry', value: 'Flags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Keyboard', value: 'KeyboardDelay', type: REG_SZ, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Ease of Access', value: 'selfscan', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Ease of Access', value: 'selfvoice', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\SoundSentry', value: 'WindowsEffect', type: REG_SZ, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility', value: 'Warning Sounds', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility', value: 'Sound on Activation', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\MouseKeys', value: 'MaximumSpeed', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Control Panel\Accessibility\MouseKeys', value: 'TimeToMaximumSpeed', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\TabletTip\1.7', value: 'DisablePrediction', type: REG_DWORD, data: '1'} #Disable text prediction
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\TabletTip\1.7', value: 'DisablePrediction', type: REG_DWORD, data: '1'} #Disable text prediction
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace', value: 'AllowSuggestedAppsInWindowsInkWorkspace', type: REG_DWORD, data: '0'} #DisAllow suggested apps in Windows Ink Workspace
+
+  # Disable Background Disk Defragmentation
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Dfrg\BootOptimizeFunction', value: 'Enable', type: REG_SZ, data: 'N'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OptimalLayout', value: 'EnableAutoLayout', type: REG_DWORD, data: '0'}
+
+  # Disable Suggested Ways
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement', value: 'ScoobeSystemSettingEnabled', type: REG_DWORD, data: '0'}
+
+  # Decrease Shutdown Time
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'HungAppTimeout', type: REG_SZ, data: '2000'}
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'WaitToKillAppTimeOut', type: REG_SZ, data: '2000'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control', value: 'WaitToKillServiceTimeout', type: REG_SZ, data: '2000'}
+
+  # Disable Autologon After Update or Restart
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'DisableAutomaticRestartSignOn', type: REG_DWORD, data: '1'} #Sign-in and lock last interactive user automatically after a restart
+
+  # Disable Snapping
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'WindowArrangementActive', type: REG_SZ, data: '0'}
+
+  # Do not Reduce Sounds
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Multimedia\Audio', value: 'UserDuckingPreference', type: REG_DWORD, data: '3'}
+
+  # Remove Shortcut Text
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates', value: 'ShortcutNameTemplate', type: REG_SZ, data: '"%s.lnk"'}
+
+  # Disable Startup Delay
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize', value: 'StartupDelayInMSec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'DelayedDesktopSwitchTimeout', type: REG_DWORD, data: '0'}
+
+  # Disable Device Encryption
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\BitLocker', value: 'PreventDeviceEncryption', type: REG_DWORD, data: '1'}
+
+  # Disable App Archiving
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Appx', value: 'AllowAutomaticAppArchiving', type: REG_DWORD, data: '0'} #Archive infrequently used apps
+
+  # Disable Background Apps
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications', value: 'GlobalUserDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search', value: 'BackgroundAppGlobalToggle', type: REG_DWORD, data: '0'}
+
+  # Set up Low Risk Files
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Associations', value: 'LowRiskFileTypes', type: REG_SZ, data: '.avi;.bat;.cmd;.exe;.htm;.html;.lnk;.mpg;.mpeg;.mov;.mp3;.mp4;.mkv;.msi;.m3u;.rar;.reg;.txt;.vbs;.wav;.zip;.7z;.ps1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments', value: 'SaveZoneInformation', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3', value: '1806', type: REG_DWORD, data: '0'}
+
+  # Disable Settings Tips
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\PolicyManager\default\Settings\AllowOnlineTips', value: 'value', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'AllowOnlineTips', type: REG_DWORD, data: '0'}
+
+  # Disable SMB Bandwidth Throttling
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters', value: 'DisableBandwidthThrottling', type:  REG_DWORD, data: '1'}
+
+  # Disable File History
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\FileHistory', value: 'Disabled', type: REG_DWORD, data: '1'} #Turn off File History
+
+  # Disable Tips
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent', value: 'DisableSoftLanding', type: REG_DWORD, data: '1'} #Do not show Windows tips
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\EdgeUI', value: 'DisableHelpSticker', type: REG_DWORD, data: '1'} #Disable help tips
+
+  # Disable Startup Sound
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\EditionOverrides', value: 'UserSetting_DisableStartupSound', type: REG_DWORD, data: '1'}
+
+  # Disable Automatic Maintenance
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance', value: 'MaintenanceDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Task Scheduler\Maintenance', value: 'WakeUp', type: REG_DWORD, data: '0'} #Automatic Maintenance WakeUp Policy
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\ScheduledDiagnostics', value: 'EnabledExecution', type: REG_DWORD, data: '0'} #Configure Scheduled Maintenance Behavior
+
+  # Enable Verbose Status
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'verbosestatus', type: REG_DWORD, data: '1'} #Display highly detailed status messages
+
+  # Force Close Apps
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'AutoEndTasks', type: REG_SZ, data: '1'}
+
+  # Do not Show Edge Tab Sinal Tab
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'MultiTaskingAltTabFilter', type: REG_DWORD, data: '3'}
+
+  # Disable Autorun and Autoplay
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoAutorun', type: REG_DWORD, data: '1'} #Set the default behavior for AutoRun
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers', value: 'DisableAutoplay', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoDriveTypeAutoRun', type: REG_DWORD, data: '255'} #Turn off Autoplay
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'NoAutoplayfornonVolume', type: REG_DWORD, data: '1'} #Disallow Autoplay for non-volume devices
+
+  # Disable Aero Shake
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'DisallowShaking', type: REG_DWORD, data: '1'}
+
+  # Disable Low Disk Space Checks
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoLowDiskSpaceChecks', type: REG_DWORD, data: '1'}
+
+  # Disable Menu Hover Delay
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'MenuShowDelay', type: REG_SZ, data: '0'}
+
+  # Disable Cloud Content
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent', value: 'DisableCloudOptimizedContent', type: REG_DWORD, data: '1'} #Turn off cloud optimized content
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent', value: 'DisableConsumerAccountStateContent', type: REG_DWORD, data: '1'} #Turn off cloud consumer account state content
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent', value: 'DisableWindowsConsumerFeatures', type: REG_DWORD, data: '1'} #Turn off Microsoft consumer experiences
+
+  # Disable Recommended Troubleshooting
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\WindowsMitigation', value: 'UserPreference', type: REG_DWORD, data: '1'}
+
+  # Disable Filers from Office
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'DisableGraphRecentItems', type: REG_DWORD, data: '1'} #Turn off account-based insights, recent, favorite, and recommended files in File Explorer
+
+  # Disable Show Desktop Peek on Taskbar
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'DisablePreviewDesktop', type: REG_DWORD, data: '1'}
+
+  # Disable News and Interests
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds', value: 'EnableFeeds', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Dsh', value: 'AllowNewsAndInterests', type: REG_DWORD, data: '0'} #DisAllow widgets
+
+  # Disable Sharing Wizard
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'SharingWizardOn', type: REG_DWORD, data: '0'}
+
+  # Disable Tablet Mode
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell', value: 'SignInMode', type: REG_DWORD, data: '1'}
+
+  # Disable Windows Chat
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Chat', value: 'ChatIcon', type: REG_DWORD, data: '3'} #Configures the Chat icon on the taskbar
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'TaskbarMn', type: REG_DWORD, data: '0'}
+
+  # Add End Task
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings', value: 'TaskbarEndTask', type: REG_DWORD, data: '1'}
+
+  # Hide Meet Now
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'HideSCAMeetNow', type: REG_DWORD, data: '1'} #Remove the Meet Now icon
+
+  # Disable Task View Button
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MultiTaskingView\AllUpView', value: 'Enabled', operation: delete}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'ShowTaskViewButton', type: REG_DWORD, data: '0'}
+
+  # Taskbar Left Side
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'TaskbarAl', type: REG_DWORD, data: '0'}
+
+  # Extend Icon Cache
+  - !registryValue: {path: 'HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell', value: 'FolderType', operation: delete}
+
+  # Disable Use Checkboxes
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'AutoCheckSelect', type: REG_DWORD, data: '0'}
+
+  # Disable Searching For Invalid Shortcuts
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoResolveSearch', type: REG_DWORD, data: '1'} #Do not use the search-based method when resolving shell shortcuts
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoResolveTrack', type: REG_DWORD, data: '1'} #Do not use the tracking-based method when resolving shell shortcuts
+
+  # Dont Show Office File
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer', value: 'ShowCloudFilesInQuickAccess', type: REG_DWORD, data: '0'}
+
+  # Full Context Menu on Items
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'MultipleInvokePromptMinimum', type: REG_DWORD, data: '100'}
+
+  # Hide Recent Items
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'ShowFrequent', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'ShowRecent', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'Start_TrackDocs', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'ClearRecentDocsOnExit', type: REG_DWORD, data: '1'} #Clear history of recently opened documents on exit
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoRecentDocsHistory', type: REG_DWORD, data: '1'} #Do not keep history of recently opened documents
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'NoRemoteDestinations', type: REG_DWORD, data: '1'} #Do not display or track items in Jump Lists from remote locations
+
+  # Mouse Hover Time
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'MouseHoverTime', type: REG_SZ, data: '0'}
+
+  # Give Access to Context Menu
+  - !registryKey: {path: 'HKCR\*\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\Directory\Background\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\Directory\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\Drive\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\LibraryFolder\background\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\UserLibraryFolder\shellex\ContextMenuHandlers\Sharing'}
+  - !registryKey: {path: 'HKCR\Folder\ShellEx\ContextMenuHandlers\Library Location'}
+
+  # Share Context Menu
+  - !registryKey: {path: 'HKCR\AllFilesystemObjects\shellex\ContextMenuHandlers\ModernSharing'}
+
+  # Developer Mode
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock', value: 'AllowDevelopmentWithoutDevLicense', type: REG_DWORD, data: '1'}
+
+  # Hide Disabled and Disconnected Devices
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Multimedia\Audio\DeviceCpl', value: 'ShowDisconnectedDevices', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Multimedia\Audio\DeviceCpl', value: 'ShowHiddenDevices', type: REG_DWORD, data: '0'}
+
+  # Delegated Folders
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}'}
+
+  # Enthusiast Mode
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager', value: 'EnthusiastMode', type: REG_DWORD, data: '1'}
+
+  # Explorer Titlebar Path
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState', value: 'FullPath', type: REG_DWORD, data: '1'}
+
+  # Disable Network File Associations
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoInternetOpenWith', type: REG_DWORD, data: '1'} #Turn off Internet File Association service
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoInternetOpenWith', type: REG_DWORD, data: '1'} #Turn off Internet File Association service
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\SearchCompanion', value: 'DisableContentFileUpdates', type: REG_DWORD, data: '1'} #Turn off Search Companion content file updates
+
+  # File Explorer to this PC
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'LaunchTo', type: REG_DWORD, data: '1'}
+
+  # Crash Control
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CrashControl', value: 'AutoReboot', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CrashControl', value: 'CrashDumpEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CrashControl', value: 'LogEvent', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CrashControl', value: 'DisplayParameters', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CrashControl\StorageTelemetry', value: 'DeviceDumpEnabled', type: REG_DWORD, data: '0'}
+
+  # Remove Print Context Menu
+  - !status: {status: 'Configuring context menus'}
+  - !registryKey: {path: 'HKCR\SystemFileAssociations\image\shell\print'}
+  - !registryKey: {path: 'HKCR\batfile\shell\print'}
+  - !registryKey: {path: 'HKCR\fonfile\shell\print'}
+  - !registryKey: {path: 'HKCR\cmdfile\shell\print'}
+  - !registryKey: {path: 'HKCR\htmlfile\shell\print'}
+  - !registryKey: {path: 'HKCR\JSEFile\Shell\Print'}
+  - !registryKey: {path: 'HKCR\otffile\shell\print'}
+  - !registryKey: {path: 'HKCR\pfmfile\shell\print'}
+  - !registryKey: {path: 'HKCR\regfile\shell\print'}
+  - !registryKey: {path: 'HKCR\ttcfile\shell\print'}
+  - !registryKey: {path: 'HKCR\ttffile\shell\print'}
+  - !registryKey: {path: 'HKCR\VBEFile\Shell\Print'}
+  - !registryKey: {path: 'HKCR\VBSFile\Shell\Print'}
+  - !registryKey: {path: 'HKCR\WSFFile\Shell\Print'}
+
+  # Remove Pin to Start
+  - !registryKey: {path: 'HKCR\Folder\shellex\ContextMenuHandlers\PintoStartScreen'}
+  - !registryKey: {path: 'HKCR\exefile\shellex\ContextMenuHandlers\PintoStartScreen'}
+  - !registryKey: {path: 'HKCR\Microsoft.Website\ShellEx\ContextMenuHandlers\PintoStartScreen'}
+  - !registryKey: {path: 'HKCR\mscfile\shellex\ContextMenuHandlers\PintoStartScreen'}
+
+  # Remove Pin to Home Quick Access
+  - !registryKey: {path: 'HKCR\*\shell\pintohomefile'}
+  - !registryKey: {path: 'HKCR\Folder\shell\pintohome'}
+
+  # Troubleshoot Compatibility Context Menu
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked', value: '{1d27f844-3a1f-4410-85ac-14651078412d}', type: REG_SZ, data: ''}
+
+  # Old Context Menu
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32', value: '', type: REG_SZ, data: ''}
+
+  # Previous Version
+  - !registryKey: {path: 'HKCR\AllFilesystemObjects\shellex\ContextMenuHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\CLSID\{450D8FBA-AD25-11D0-98A8-0800361B1103}\shellex\ContextMenuHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\Directory\shellex\ContextMenuHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\Drive\shellex\ContextMenuHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+
+  - !registryKey: {path: 'HKCR\AllFilesystemObjects\shellex\PropertySheetHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\CLSID\{450D8FBA-AD25-11D0-98A8-0800361B1103}\shellex\PropertySheetHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\Directory\shellex\PropertySheetHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+  - !registryKey: {path: 'HKCR\Drive\shellex\PropertySheetHandlers\{596AB062-B4D2-4215-9F74-E9109B0A8153}'}
+
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'NoPreviousVersionsPage', operation: delete}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\PreviousVersions', value: 'DisableLocalPage', operation: delete}
+
+  # W10 File Explorer
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}', value: '', type: REG_SZ, data: 'CLSID_ItemsViewAdapter'}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}\InProcServer32', value: '', type: REG_SZ, data: 'C:\Windows\System32\Windows.UI.FileExplorer.dll_'}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}\InProcServer32', value: 'ThreadingModel', type: REG_SZ, data: 'Apartment'}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}', value: '', type: REG_SZ, data: 'File Explorer Xaml Island View Adapter'}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}\InProcServer32', value: '', type: REG_SZ, data: 'C:\Windows\System32\Windows.UI.FileExplorer.dll_'}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}\InProcServer32', value: 'ThreadingModel', type: REG_SZ, data: 'Apartment'}
+
+  # Network File Explorer
+  - !registryValue: {path: 'HKCU\SOFTWARE\Classes\CLSID\{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}', value: 'System.IsPinnedToNameSpaceTree', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Classes\CLSID\{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}', value: 'System.IsPinnedToNameSpaceTree', type: REG_DWORD, data: '0'}
+
+  # Remove Gallery
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}', operation: delete}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}', value: 'System.IsPinnedToNameSpaceTree', type: REG_DWORD, data: '0'}
+
+  # Remove Home
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}', operation: delete}
+  - !registryValue: {path: 'HKCU\Software\Classes\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}', value: 'System.IsPinnedToNameSpaceTree', type: REG_DWORD, data: '0'}
+
+  # Configure Folders this PC
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{31C0DD25-9439-4F12-BF41-7FF4EDA38722}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{a0c69a99-21c8-4671-8703-7934162fcf1d}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{7d83ee9b-2244-4e70-b1f5-5393042af1e4}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{0ddd015d-b06c-45d5-8c4c-f59713854639}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{35286a68-3c57-41a1-bbb1-0eae73d76c95}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{f42ee2d3-909f-4907-8871-4c22fc0bf756}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}\PropertyBag', value: 'ThisPCPolicy', type: REG_SZ, data: 'Hide'}
+
+  # Open CMD here
+  - !registryValue: {path: 'HKCR\Directory\shell\cmd_here', value: '', type: REG_SZ, data: 'Open CMD here'}
+  - !registryValue: {path: 'HKCR\Directory\shell\cmd_here', value: 'Icon', type: REG_SZ, data: 'cmd.exe'}
+  - !registryValue: {path: 'HKCR\Directory\shell\cmd_here', value: 'SeparatorBefore', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Directory\shell\cmd_here\command', value: '', type: REG_SZ, data: 'cmd.exe /k cd /d "%1"'}
+  - !registryValue: {path: 'HKCR\Directory\Background\shell\cmd_here', value: '', type: REG_SZ, data: 'Open CMD here'}
+  - !registryValue: {path: 'HKCR\Directory\Background\shell\cmd_here', value: 'Icon', type: REG_SZ, data: 'cmd.exe'}
+  - !registryValue: {path: 'HKCR\Directory\Background\shell\cmd_here', value: 'SeparatorBefore', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Directory\Background\shell\cmd_here\command', value: '', type: REG_SZ, data: 'cmd.exe /k cd /d "%V"'}
+
+  # Import .pow
+  - !registryValue: {path: 'HKCR\.pow', value: '', type: REG_SZ, data: 'Power Plan'}
+  - !registryValue: {path: 'HKCR\.pow', value: 'FriendlyTypeName', type: REG_SZ, data: 'Power Plan'}
+  - !registryValue: {path: 'HKCR\.pow\DefaultIcon', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\powercfg.cpl,-202'}
+  - !registryValue: {path: 'HKCR\.pow\shell\Import\command', value: '', type: REG_SZ, data: 'powercfg /import "%1"'}
+
+  # Install .cab
+  - !registryValue: {path: 'HKCR\CABFolder\Shell\RunAs', value: '', type: REG_SZ, data: 'Install'}
+  - !registryValue: {path: 'HKCR\CABFolder\Shell\RunAs', value: 'HasLUAShield', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\CABFolder\Shell\RunAs\Command', value: '', type: REG_SZ, data: 'cmd /k dism /online /add-package /packagepath:"%1"'}
+
+  # New .reg
+  - !registryValue: {path: 'HKCR\.reg\ShellNew', value: 'NullFile', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\.reg\ShellNew', value: 'ItemName', type: REG_EXPAND_SZ, data: '%systemroot%\regedit.exe,-309'}
+
+  # New .bat
+  - !registryValue: {path: 'HKCR\.bat\ShellNew', value: 'ItemName', type: REG_EXPAND_SZ, data: '%systemroot%\System32\acppage.dll,-6002'}
+  - !registryValue: {path: 'HKCR\.bat\ShellNew', value: 'NullFile', type: REG_SZ, data: ''}
+
+  # New .ps1
+  - !registryValue: {path: 'HKCR\.ps1', value: '', type: REG_SZ, data: 'Microsoft.PowerShellScript.1'}
+  - !registryValue: {path: 'HKCR\.ps1\ShellNew', value: 'NullFile', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1', value: '', type: REG_SZ, data: 'Windows PowerShell Script'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1', value: 'FriendlyTypeName', type: REG_SZ, data: 'Windows PowerShell Script'}
+
+  # Take Ownership
+  - !registryValue: {path: 'HKCR\Directory\shell\runas', value: '', type: REG_SZ, data: 'Take Ownership'}
+  - !registryValue: {path: 'HKCR\Directory\shell\runas', value: 'HasLUAShield', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Directory\shell\runas', value: 'NoWorkingDirectory', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Directory\shell\runas\command', value: '', type: REG_SZ, data: 'cmd.exe /c takeown /f %1 /r /d y && icacls %1 /grant administrators:F'}
+  - !registryValue: {path: 'HKCR\Directory\shell\runas\command', value: 'IsolatedCommand', type: REG_SZ, data: 'cmd.exe /c takeown /f %1 /r /d y && icacls %1 /grant administrators:F'}
+
+  # Run as Trusted Installer
+  - !cmd: {command: 'reg import runasti.reg', exeDir: true, wait: true, runas: currentUserElevated}
+
+  # Remove Send to
+  - !registryKey: {path: 'HKCR\AllFilesystemObjects\shellex\ContextMenuHandlers\SendTo'}
+  - !registryKey: {path: 'HKCR\UserLibraryFolder\shellex\ContextMenuHandlers\SendTo'}
+
+  # Cast to Device
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked', value: '{7AD84985-87B4-4a16-BE58-8B72A5B390F7}', type: REG_SZ, data: ''}
+
+  # Extract All
+  - !registryKey: {path: 'HKCR\CompressedFolder\ShellEx\ContextMenuHandlers\{b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af}'}
+  - !registryKey: {path: 'HKCR\SystemFileAssociations\.zip\ShellEx\ContextMenuHandlers\{b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af}'}
+
+  # Disable Sounds
+  - !powerShell: {command: "New-ItemProperty -Path 'HKCU:\\AppEvents\\Schemes' -Name '(Default)' -Value '.None' -Force | Out-Null; Get-ChildItem -Path 'HKCU:\\AppEvents\\Schemes\\Apps' | Get-ChildItem | Get-ChildItem | Where-Object { $_.PSChildName -eq '.Current' } | Set-ItemProperty -Name '(Default)' -Value ''", runas: currentUserElevated, wait: true}
+
+  # Remove RTF
+  - !registryKey: {path: 'HKCR\.rtf\ShellNew'}
+
+  # Disable USB Alerts
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Shell\USB', value: 'NotifyOnUsbErrors', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Shell\USB', value: 'NotifyOnWeakCharger', type: REG_DWORD, data: '0'}
+
+  # All Tasks Control Panel
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel\NameSpace\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}', data: 'All Tasks', type: REG_SZ}
+  - !registryValue: {path: 'HKCR\CLSID\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}', data: 'All Tasks', type: REG_SZ}
+  - !registryValue: {path: 'HKCR\CLSID\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}', value: 'InfoTip', type: REG_SZ, data: 'View list of all Control Panel tasks'}
+  - !registryValue: {path: 'HKCR\CLSID\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}', value: 'System.ControlPanel.Category', type: REG_SZ, data: '5'}
+  - !registryValue: {path: 'HKCR\CLSID\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}\DefaultIcon', data: '%systemroot%\System32\imageres.dll,-27', type: REG_SZ}
+  - !registryValue: {path: 'HKCR\CLSID\{D15ED2E1-C75B-443c-BD7C-FC03B2F08C17}\Shell\Open\Command', data: 'explorer.exe shell:::{ED7BA470-8E54-465E-825C-99712043E01C}', type: REG_SZ}
+
+  # Show File Extensions
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'Hidden', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'HideFileExt', type: REG_DWORD, data: '0'}
+
+  # Explorer Compact Mode
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'UseCompactMode', type: REG_DWORD, data: '1'}
+
+  # Extend Icon Cache
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'Max Cached Icons', type: REG_SZ, data: '4096'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'Max Cached Icons', type: REG_SZ, data: '4096'}
+
+  # Use Cmd on winX
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'DontUsePowerShellOnWinX', type: REG_DWORD, data: '1'}
+
+  # Turn off Help and Support Center
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\PCHealth\HelpSvc', value: 'Headlines', type: REG_DWORD, data: '0'} #Turn off Help and Support Center "Did you know?" content
+
+  # Account notifications in start
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\AccountNotifications', value: 'DisableAccountNotifications', type: REG_DWORD, data: '1'} #Turn off account notifications in Start
+
+  # Themes change desktop icons
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Themes', value: 'ThemeChangesDesktopIcons', type: REG_SZ, data: '0'}
+
+  # pcname
+  - !powerShell: { command: "if ((Get-CimInstance Win32_ComputerSystem).Name -ne 'VAIN') { Rename-Computer -NewName 'VAIN' -Force }", runas: currentUserElevated, wait: true }
+
+  # cmd
+  - !registryValue: {path: 'HKCU\Console\%SystemRoot%_system32_cmd.exe', value: 'FontWeight', type: REG_DWORD, data: '700'}
+  - !registryValue: {path: 'HKCU\Console\%SystemRoot%_system32_cmd.exe', value: 'WindowAlpha', type: REG_DWORD, data: '239'}
+  - !registryValue: {path: 'HKCU\Console\%SystemRoot%_system32_cmd.exe', value: 'CursorType', type: REG_DWORD, data: '2'}
+  - !registryValue: {path: 'HKCU\Console\%SystemRoot%_system32_cmd.exe', value: 'TerminalScrolling', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Console\%SystemRoot%_system32_cmd.exe', value: 'FontSize', type: REG_DWORD, data: '1179648'}
+
+  # Visual and Quality of Life
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'ListviewAlphaSelect', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'IconsOnly', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'TaskbarAnimations', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'ListviewShadow', type: REG_DWORD, data: '0'}
+
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects', value: 'VisualFXSetting', type: REG_DWORD, data: '3'}
+
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\DWM', value: 'EnableAeroPeek', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\DWM', value: 'AlwaysHibernateThumbnails', type: REG_DWORD, data: '0'}
+
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize', value: 'EnableTransparency', type: REG_DWORD, data: '0'}
+
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'JPEGImportQuality', type: REG_DWORD, data: '100'}
+
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'UserPreferencesMask', type: REG_BINARY, data: '9012038012000000'}
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'DragFullWindows', type: REG_SZ, data: '1'}
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop\WindowMetrics', value: 'MinAnimate', type: REG_SZ, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Accent', value: 'AccentPalette', type: REG_BINARY, data: '9CEBFF0040BDFF00000000000000000000000000000000000000000000000000'} #accent color
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize', value: 'ColorPrevalence', type: REG_DWORD, data: '1'} #show accent color on start and taskbar
+
+  - !registryValue: {path: 'HKCU\Control Panel\Desktop', value: 'ForegroundLockTimeout', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'SettingsPageVisibility', type: REG_SZ, data: 'hide:home;privacy-automaticfiledownloads;privacy-feedback;windowsinsider;deviceusage;maps;otherusers;findmydevice;windowsdefender;quiethours;powersleep;batterysaver;batterysaver-settings;storagesense;storagepolicies;savelocations;project;crossdevice;mobile-devices;network-dialup;videoplayback;search-permissions;cortana-windowssearch;privacy-speech;privacy-speechtyping;privacy-activityhistory;recovery;troubleshoot;privacy-general;pen;personalization-textinput'}
+  - !cmd: {exeDir: true, command: 'copy /y blank.ico "%SystemRoot%\System32\blank.ico" >nul'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons', value: '29', type: REG_SZ, data: 'C:\Windows\system32\blank.ico'}
+  - !registryValue: {path: 'HKCU\Control Panel\Colors', value: 'InfoWindow', type: REG_SZ, data: '246 253 255'}

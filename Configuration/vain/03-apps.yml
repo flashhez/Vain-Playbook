@@ -1,0 +1,546 @@
+---
+# ======================================================================
+#  03 - Apps, browsers, taskbar and Start menu
+#
+#  Clears the taskbar, installs VC++ runtimes, DirectX and 7-Zip
+#  (with file classes), installs the selected browser, pins the taskbar
+#  per browser, configures Start menu/search and restores classic Notepad.
+# ======================================================================
+
+actions:
+  # Clear taskbar
+  - !registryKey: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband'}
+
+  # Software
+  - !status: {status: 'Installing VC Redist 2005'}
+  - !download: {url: 'https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x86.EXE', destination: '%temp%\2005_86.exe', overwrite: true}
+  - !download: {url: 'https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x64.EXE', destination: '%temp%\2005_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\2005_86.exe" /Q /C /T:%temp%\2005_86', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2005_64.exe" /Q /C /T:%temp%\2005_64', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2005_86\vcredist.msi" /quiet /norestart', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2005_64\vcredist.msi" /quiet /norestart', runas: currentUserElevated, wait: true}
+  - !file: {path: '%temp%\2005_86'}
+  - !file: {path: '%temp%\2005_64'}
+
+  - !status: {status: 'Installing VC Redist 2008'}
+  - !download: {url: 'https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe', destination: '%temp%\2008_86.exe', overwrite: true}
+  - !download: {url: 'https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x64.exe', destination: '%temp%\2008_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\2008_86.exe" /q', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2008_64.exe" /q', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing VC Redist 2010'}
+  - !download: {url: 'https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe', destination: '%temp%\2010_86.exe', overwrite: true}
+  - !download: {url: 'https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x64.exe', destination: '%temp%\2010_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%/2010_86.exe" /q', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%/2010_64.exe" /q', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing VC Redist 2012'}
+  - !download: {url: 'https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe', destination: '%temp%\2012_86.exe', overwrite: true}
+  - !download: {url: 'https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe', destination: '%temp%\2012_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\2012_86.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2012_64.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing VC Redist 2013'}
+  - !download: {url: 'https://aka.ms/highdpimfc2013x86enu', destination: '%temp%\2013_86.exe', overwrite: true}
+  - !download: {url: 'https://aka.ms/highdpimfc2013x64enu', destination: '%temp%\2013_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\2013_86.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2013_64.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing VC Redist 2015-2026'}
+  - !download: {url: 'https://aka.ms/vc14/vc_redist.x86.exe', destination: '%temp%\2015_2026_86.exe', overwrite: true}
+  - !download: {url: 'https://aka.ms/vc14/vc_redist.x64.exe', destination: '%temp%\2015_2026_64.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\2015_2026_86.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\2015_2026_64.exe" /install /quiet /norestart', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing DirectX'}
+  - !download: {url: 'https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe', destination: '%temp%\DirectX.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\DirectX.exe" /Q /C /T:%temp%\DirectX', runas: currentUserElevated, wait: true}
+  - !cmd: {command: '"%temp%\DirectX\DXSETUP.exe" /silent', runas: currentUserElevated, wait: true}
+  - !file: {path: '%temp%\DirectX'}
+
+  - !status: {status: 'Installing 7Zip'}
+  - !download: {git: 'https://github.com/ip7z/7zip', regex: '^7z.*-x64\.exe$', destination: '%temp%\7Zip.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\7Zip.exe" /S', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Configuring 7-Zip'}
+  - !registryValue: {path: 'HKCU\Software\7-Zip\FM\Columns', value: 'RootFolder', type: REG_BINARY, data: '0100000000000000010000000400000001000000a0000000'}
+  - !registryValue: {path: 'HKCU\Software\7-Zip\Options', value: 'ContextMenu', type: REG_DWORD, data: '4903'}
+  - !registryValue: {path: 'HKCU\Software\7-Zip\Options', value: 'ElimDupExtract', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.001', value: '', type: REG_SZ, data: '7-Zip.001'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.7z', value: '', type: REG_SZ, data: '7-Zip.7z'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.apfs', value: '', type: REG_SZ, data: '7-Zip.apfs'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.arj', value: '', type: REG_SZ, data: '7-Zip.arj'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.bz2', value: '', type: REG_SZ, data: '7-Zip.bz2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.bzip2', value: '', type: REG_SZ, data: '7-Zip.bzip2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.cab', value: '', type: REG_SZ, data: '7-Zip.cab'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.cpio', value: '', type: REG_SZ, data: '7-Zip.cpio'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.deb', value: '', type: REG_SZ, data: '7-Zip.deb'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.dmg', value: '', type: REG_SZ, data: '7-Zip.dmg'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.esd', value: '', type: REG_SZ, data: '7-Zip.esd'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.fat', value: '', type: REG_SZ, data: '7-Zip.fat'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.gz', value: '', type: REG_SZ, data: '7-Zip.gz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.gzip', value: '', type: REG_SZ, data: '7-Zip.gzip'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.hfs', value: '', type: REG_SZ, data: '7-Zip.hfs'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.iso', value: '', type: REG_SZ, data: '7-Zip.iso'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.lha', value: '', type: REG_SZ, data: '7-Zip.lha'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.lzh', value: '', type: REG_SZ, data: '7-Zip.lzh'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.lzma', value: '', type: REG_SZ, data: '7-Zip.lzma'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.ntfs', value: '', type: REG_SZ, data: '7-Zip.ntfs'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.rar', value: '', type: REG_SZ, data: '7-Zip.rar'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.rpm', value: '', type: REG_SZ, data: '7-Zip.rpm'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.squashfs', value: '', type: REG_SZ, data: '7-Zip.squashfs'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.swm', value: '', type: REG_SZ, data: '7-Zip.swm'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.tar', value: '', type: REG_SZ, data: '7-Zip.tar'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.taz', value: '', type: REG_SZ, data: '7-Zip.taz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.tbz', value: '', type: REG_SZ, data: '7-Zip.tbz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.tbz2', value: '', type: REG_SZ, data: '7-Zip.tbz2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.tgz', value: '', type: REG_SZ, data: '7-Zip.tgz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.tpz', value: '', type: REG_SZ, data: '7-Zip.tpz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.txz', value: '', type: REG_SZ, data: '7-Zip.txz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.vhd', value: '', type: REG_SZ, data: '7-Zip.vhd'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.wim', value: '', type: REG_SZ, data: '7-Zip.wim'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.xar', value: '', type: REG_SZ, data: '7-Zip.xar'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.xz', value: '', type: REG_SZ, data: '7-Zip.xz'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.z', value: '', type: REG_SZ, data: '7-Zip.z'}
+  - !registryValue: {path: 'HKCU\Software\Classes\.zip', value: '', type: REG_SZ, data: '7-Zip.zip'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.001', value: '', type: REG_SZ, data: '001 Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.001\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,9'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.001\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.001\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.001\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.7z', value: '', type: REG_SZ, data: '7z Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.7z\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,0'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.7z\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.7z\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.7z\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.apfs', value: '', type: REG_SZ, data: 'apfs Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.apfs\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,25'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.apfs\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.apfs\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.apfs\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.arj', value: '', type: REG_SZ, data: 'arj Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.arj\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,4'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.arj\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.arj\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.arj\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bz2', value: '', type: REG_SZ, data: 'bz2 Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bz2\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bz2\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bz2\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bz2\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bzip2', value: '', type: REG_SZ, data: 'bzip2 Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bzip2\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bzip2\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bzip2\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.bzip2\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cab', value: '', type: REG_SZ, data: 'cab Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cab\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,7'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cab\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cab\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cab\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cpio', value: '', type: REG_SZ, data: 'cpio Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cpio\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,12'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cpio\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cpio\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.cpio\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.deb', value: '', type: REG_SZ, data: 'deb Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.deb\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,11'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.deb\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.deb\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.deb\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.dmg', value: '', type: REG_SZ, data: 'dmg Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.dmg\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,17'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.dmg\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.dmg\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.dmg\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.esd', value: '', type: REG_SZ, data: 'esd Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.esd\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,15'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.esd\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.esd\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.esd\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.fat', value: '', type: REG_SZ, data: 'fat Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.fat\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,21'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.fat\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.fat\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.fat\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gz', value: '', type: REG_SZ, data: 'gz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,14'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gzip', value: '', type: REG_SZ, data: 'gzip Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gzip\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,14'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gzip\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gzip\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.gzip\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.hfs', value: '', type: REG_SZ, data: 'hfs Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.hfs\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,18'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.hfs\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.hfs\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.hfs\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.iso', value: '', type: REG_SZ, data: 'iso Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.iso\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,8'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.iso\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.iso\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.iso\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lha', value: '', type: REG_SZ, data: 'lha Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lha\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,6'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lha\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lha\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lha\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzh', value: '', type: REG_SZ, data: 'lzh Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzh\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,6'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzh\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzh\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzh\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzma', value: '', type: REG_SZ, data: 'lzma Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzma\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,16'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzma\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzma\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.lzma\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.ntfs', value: '', type: REG_SZ, data: 'ntfs Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.ntfs\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,22'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.ntfs\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.ntfs\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.ntfs\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rar', value: '', type: REG_SZ, data: 'rar Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rar\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,3'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rar\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rar\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rar\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rpm', value: '', type: REG_SZ, data: 'rpm Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rpm\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,10'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rpm\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rpm\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.rpm\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.squashfs', value: '', type: REG_SZ, data: 'squashfs Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.squashfs\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,24'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.squashfs\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.squashfs\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.squashfs\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.swm', value: '', type: REG_SZ, data: 'swm Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.swm\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,15'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.swm\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.swm\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.swm\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tar', value: '', type: REG_SZ, data: 'tar Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tar\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,13'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tar\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tar\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tar\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.taz', value: '', type: REG_SZ, data: 'taz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.taz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,5'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.taz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.taz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.taz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz', value: '', type: REG_SZ, data: 'tbz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz2', value: '', type: REG_SZ, data: 'tbz2 Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz2\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz2\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz2\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz2\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,2'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tbz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tgz', value: '', type: REG_SZ, data: 'tgz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tgz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,14'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tgz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tgz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tgz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tpz', value: '', type: REG_SZ, data: 'tpz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tpz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,14'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tpz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tpz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.tpz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.txz', value: '', type: REG_SZ, data: 'txz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.txz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,23'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.txz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.txz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.txz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.vhd', value: '', type: REG_SZ, data: 'vhd Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.vhd\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,20'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.vhd\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.vhd\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.vhd\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.wim', value: '', type: REG_SZ, data: 'wim Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.wim\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,15'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.wim\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.wim\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.wim\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xar', value: '', type: REG_SZ, data: 'xar Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xar\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,19'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xar\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xar\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xar\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xz', value: '', type: REG_SZ, data: 'xz Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xz\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,23'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xz\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xz\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.xz\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.z', value: '', type: REG_SZ, data: 'z Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.z\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,5'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.z\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.z\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.z\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.zip', value: '', type: REG_SZ, data: 'zip Archive'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.zip\DefaultIcon', value: '', type: REG_SZ, data: 'C:\Program Files\7-Zip\7z.dll,1'}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.zip\shell', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.zip\shell\open', value: '', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCU\Software\Classes\7-Zip.zip\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCR\Applications\7zFM.exe\shell\open\command', value: '', type: REG_SZ, data: '"C:\Program Files\7-Zip\7zFM.exe" "%1"'}
+  - !registryValue: {path: 'HKCR\*\OpenWithList\7zFM.exe', value: '', type: REG_SZ, data: ''}
+
+  # Browsers
+  - !status: {status: 'Installing Firefox Dev', option: 'browser-firefoxdev'}
+  - !download: {option: 'browser-firefoxdev', url: 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=win64&lang=en-US', destination: '%temp%\FirefoxDev.exe', overwrite: true}
+  - !cmd: {option: 'browser-firefoxdev', command: '"%temp%\FirefoxDev.exe" /S', runas: currentUserElevated}
+
+  - !status: {status: 'Installing Firefox', option: 'browser-firefox'}
+  - !download: {option: 'browser-firefox', url: 'https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US', destination: '%temp%\Firefox.exe', overwrite: true}
+  - !cmd: {option: 'browser-firefox', command: '"%temp%\Firefox.exe" /S', runas: currentUserElevated}
+
+  - !status: {status: 'Installing Chrome', option: 'browser-chrome'}
+  - !download: {option: 'browser-chrome', url: 'https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi', destination: '%temp%\Chrome.msi', overwrite: true}
+  - !cmd: {option: 'browser-chrome', command: '"%temp%\Chrome.msi" /quiet /norestart', runas: currentUserElevated}
+
+  - !status: {status: 'Installing Brave', option: 'browser-brave'}
+  - !download: {option: 'browser-brave', url: 'https://laptop-updates.brave.com/latest/winx64', destination: '%temp%\Brave.exe', overwrite: true}
+  - !cmd: {option: 'browser-brave', command: '"%temp%\Brave.exe" /silent /install', runas: currentUserElevated}
+
+  - !status: {status: 'Installing Librewolf', option: 'browser-librewolf'}
+  - !powerShell: {command: '$librewolfVersion=(Invoke-RestMethod "https://gitlab.com/api/v4/projects/44042130/releases")[0].Name; if([string]::IsNullOrEmpty($librewolfVersion)) { throw "GitLab API returned nothing!" }; curl.exe -LSs "https://gitlab.com/api/v4/projects/44042130/packages/generic/librewolf/$librewolfVersion/librewolf-$librewolfVersion-windows-x86_64-setup.exe" -o "$env:TEMP\librewolf-setup.exe"', runas: currentUserElevated, option: 'browser-librewolf', wait: true}
+  - !powerShell: {command: 'Start-Process -Wait -FilePath "$env:TEMP\librewolf-setup.exe" -ArgumentList "/S"; if (!(Test-Path \"C:\Program Files\LibreWolf\librewolf.exe\")) { throw "Installing LibreWolf silently failed." }', option: 'browser-librewolf', runas: currentUserElevated, wait: true}
+
+  - !status: {status: 'Installing Helium', option: 'browser-helium'}
+  - !download: {option: 'browser-helium', git: 'https://github.com/imputnet/helium-windows', regex: '^helium_.*_x64-mini-installer\.exe$', destination: '%temp%\Helium.exe', overwrite: true}
+  - !cmd: {option: 'browser-helium', command: '"%temp%\Helium.exe" --silent --system-level --do-not-launch-chrome', runas: currentUserElevated}
+
+
+  # Taskbar without Browser
+  - !status: {status: 'Configuring taskbar'}
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: '!install-browser'
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: '!install-browser'
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C000000FF'
+    option: '!install-browser'
+
+  # Taskbar with Firefox
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Firefox.lnk"""); $lnk.TargetPath="""$env:ProgramFiles\Mozilla Firefox\firefox.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-firefox
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000E40200004C0000000114020000000000C000000000000046830080002000000071355333EAA4DC01A1145433EAA4DC01091D6601E5A4DC0129040000000000000100000000000000000000000000000056013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC0193C55333EAA4DC0114005600310000000000575CE28B11005461736B42617200400009000400EFBE485C5433575CE38B2E000000382A0200000003000000000000000000000000000000242096005400610073006B0042006100720000001600C400320029040000575CC086200046697265666F782E6C6E6B00480009000400EFBE575CE68B575CE68B2E0000008A600200000011000000000000000000000000000000F7E67600460069007200650066006F0078002E006C006E006B0000001A00220000001E00EFBE02005500730065007200500069006E006E006500640000001A00120000002B00EFBEA1145433EAA4DC011A002E0000001D00EFBE0200330030003800300034003600420030004100460034004100330039004300420000001A000000970000001C000000010000001C0000002D00000000000000960000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46697265666F782E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF4E2103EE2011F111B9A9000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF4E2103EE2011F111B9A9000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: browser-firefox
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C00000000560100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC0193C55333EAA4DC0114005600310000000000575CE28B11005461736B42617200400009000400EFBE485C5433575CE38B2E000000382A0200000003000000000000000000000000000000242096005400610073006B0042006100720000001600C400320029040000575CC086200046697265666F782E6C6E6B00480009000400EFBE575CE68B575CE68B2E0000008A600200000011000000000000000000000000000000F7E67600460069007200650066006F0078002E006C006E006B0000001A00120000002B00EFBEA1145433EAA4DC011A002E0000001D00EFBE0200330030003800300034003600420030004100460034004100330039004300420000001A00220000001E00EFBE02005500730065007200500069006E006E006500640000001A000000FF'
+    option: browser-firefox
+
+  # Taskbar with Chrome
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Google Chrome.lnk"""); $lnk.TargetPath="""C:\Program Files\Google\Chrome\Application\chrome.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-chrome
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000E40200004C0000000114020000000000C000000000000046830080002000000089C33C33E7A4DC0104CF3D33E7A4DC01A6E26763E5A4DC01C7080000000000000100000000000000000000000000000050013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC0198173D33E7A4DC0114005600310000000000575C338911005461736B42617200400009000400EFBE485C5433575C34892E000000382A0200000003000000000000000000000000000000E43856005400610073006B0042006100720000001600BE003200C7080000575C16872000474F4F474C457E312E4C4E4B0000540009000400EFBE575C3589575C35892E000000576C02000000030000000000000000000000000000005A8B350047006F006F0067006C00650020004300680072006F006D0065002E006C006E006B0000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBE4FA43D33E7A4DC011C001A0000001D00EFBE02004300680072006F006D00650000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C476F6F676C65204368726F6D652E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BFB32003EE2011F111B9A9000C29A6860F1CF46009E731F34AA74C0247DFE2A3BFB32003EE2011F111B9A9000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: browser-chrome
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C00000000500100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC0198173D33E7A4DC0114005600310000000000575C338911005461736B42617200400009000400EFBE485C5433575C34892E000000382A0200000003000000000000000000000000000000E43856005400610073006B0042006100720000001600BE003200C7080000575C16872000474F4F474C457E312E4C4E4B0000540009000400EFBE575C3589575C35892E000000576C02000000030000000000000000000000000000005A8B350047006F006F0067006C00650020004300680072006F006D0065002E006C006E006B0000001C00120000002B00EFBE4FA43D33E7A4DC011C001A0000001D00EFBE02004300680072006F006D00650000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C000000FF'
+    option: browser-chrome
+
+  # Taskbar with Firefox Dev
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Firefox Developer Edition.lnk"""); $lnk.TargetPath="""C:\Program Files\Firefox Developer Edition\firefox.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-firefoxdev
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F54981230000000000000000000000001C0300004C0000000114020000000000C0000000000000468300800020000000F2129F59EAA4DC0123C59F59EAA4DC014AB9FCD5E4A4DC016F04000000000000010000000000000000000000000000007C013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC018B6E9F59EAA4DC0114005600310000000000575C048C11005461736B42617200400009000400EFBE485C5433575C058C2E000000382A0200000003000000000000000000000000000000D94984005400610073006B0042006100720000001600EA0032006F040000575C9886200046495245464F7E312E4C4E4B00006C0009000400EFBE575C088C575C088C2E000000956C0200000068000000000000000000000000000000B6F6F500460069007200650066006F007800200044006500760065006C006F007000650072002000450064006900740069006F006E002E006C006E006B0000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBE23C59F59EAA4DC011C002E0000001D00EFBE0200430041003900340032003200370031003100410045003100410038003100430000001C000000A90000001C000000010000001C0000002D00000000000000A80000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46697265666F7820446576656C6F7065722045646974696F6E2E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF702103EE2011F111B9A9000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF702103EE2011F111B9A9000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: browser-firefoxdev
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C000000007C0100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC018B6E9F59EAA4DC0114005600310000000000575C048C11005461736B42617200400009000400EFBE485C5433575C058C2E000000382A0200000003000000000000000000000000000000D94984005400610073006B0042006100720000001600EA0032006F040000575C9886200046495245464F7E312E4C4E4B00006C0009000400EFBE575C088C575C088C2E000000956C0200000068000000000000000000000000000000B6F6F500460069007200650066006F007800200044006500760065006C006F007000650072002000450064006900740069006F006E002E006C006E006B0000001C00120000002B00EFBE23C59F59EAA4DC011C002E0000001D00EFBE0200430041003900340032003200370031003100410045003100410038003100430000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C000000FF'
+    option: browser-firefoxdev
+
+  # Taskbar with Brave
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Brave.lnk"""); $lnk.TargetPath="""C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-brave
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000C60200004C0000000114020000000000C0000000000000468300800020000000ABD1E689EAA4DC01B4D8E789EAA4DC0118A6D81FE5A4DC018409000000000000010000000000000000000000000000003A013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC010F64E789EAA4DC0114005600310000000000575C1B8C11005461736B42617200400009000400EFBE485C5433575C1D8C2E000000382A0200000003000000000000000000000000000000F46D00005400610073006B0042006100720000001600A800320084090000575CDA86200042726176652E6C6E6B00440009000400EFBE575C328C575C328C2E0000008D640200000009000000000000000000000000000000E8EF0201420072006100760065002E006C006E006B0000001800220000001E00EFBE02005500730065007200500069006E006E006500640000001800120000002B00EFBE2AB1E789EAA4DC011800180000001D00EFBE020042007200610076006500000018000000950000001C000000010000001C0000002D00000000000000940000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C42726176652E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BFA12103EE2011F111B9A9000C29A6860F1CF46009E731F34AA74C0247DFE2A3BFA12103EE2011F111B9A9000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: browser-brave
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C000000003A0100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC010F64E789EAA4DC0114005600310000000000575C1B8C11005461736B42617200400009000400EFBE485C5433575C1D8C2E000000382A0200000003000000000000000000000000000000F46D00005400610073006B0042006100720000001600A800320084090000575CDA86200042726176652E6C6E6B00440009000400EFBE575C328C575C328C2E0000008D640200000009000000000000000000000000000000E8EF0201420072006100760065002E006C006E006B0000001800120000002B00EFBE2AB1E789EAA4DC011800180000001D00EFBE02004200720061007600650000001800220000001E00EFBE02005500730065007200500069006E006E0065006400000018000000FF'
+    option: browser-brave
+
+  # Taskbar with Helium
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Helium.lnk"""); $lnk.TargetPath="""$env:ProgramFiles\imput\Helium\Application\chrome.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-helium
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '320300004C0000000114020000000000C0000000000000468300800020000000DEF0F8CDBB44DD018F89FFCDBB44DD01127658BE864DDC01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000A952B7AABB44DD015ACDAAB9BB44DD01E334FDCDBB44DD01140056003100000000002F5D451511005461736B42617200400009000400EFBE2F5D32152F5D45152E000000134B0200000005000000000000000000000000000000BB8035005400610073006B00420061007200000016000E01320097010000645BC263200046494C4545587E312E4C4E4B00007C0009000400EFBE2F5D45152F5D45152E000000554C0200000005000000000000000000520000000000EE77AC00460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBE8F89FFCDBB44DD011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009B0000001C000000010000001C0000002D000000000000009A00000011000000030000002E2AD7661000000000433A5C55736572735C557365725C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D6362723967716A00842C2ADB76B764488A9107B1930E64EDE1AA70A7AEB0F111B194000C2911C35B842C2ADB76B764488A9107B1930E64EDE1AA70A7AEB0F111B194000C2911C35B45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000AF99F0F709285B4C8006F31C896D8450000000000000000000000000CB0200004C0000000114020000000000C00000000000004683008000200000006C00F9F8BB44DD01A0A5FAF8BB44DD01B975A79FBB44DD0104090000000000000100000000000000000000000000000040013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000A952B7AABB44DD015ACDAAB9BB44DD01C613FAF8BB44DD01140056003100000000002F5D451511005461736B42617200400009000400EFBE2F5D32152F5D45152E000000134B0200000005000000000000000000000000000000BB8035005400610073006B0042006100720000001600AE003200040900002F5D1A15200048656C69756D2E6C6E6B0000460009000400EFBE2F5D6B152F5D6B152E0000009C490200000006000000000000000000000000000000479C0D00480065006C00690075006D002E006C006E006B0000001A00220000001E00EFBE02005500730065007200500069006E006E006500640000001A00120000002B00EFBE375DFAF8BB44DD011A001A0000001D00EFBE0200480065006C00690075006D0000001A000000940000001C000000010000001C0000002D000000000000009300000011000000030000002E2AD7661000000000433A5C55736572735C557365725C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C48656C69756D2E6C6E6B000060000000030000A058000000000000006465736B746F702D6362723967716A00842C2ADB76B764488A9107B1930E64ED2EAB70A7AEB0F111B194000C2911C35B842C2ADB76B764488A9107B1930E64ED2EAB70A7AEB0F111B194000C2911C35B45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000AF99F0F709285B4C8006F31C896D8450000000000000000000000000'
+    option: browser-helium
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A00100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE120000007B0F0399A844DD015E7AA9AAA844DD01F8BACA3EA944DD01140056003100000000002F5DAA0311005461736B42617200400009000400EFBE2F5D25032F5DAA032E000000F342020000000500000000000000000000000000000008B5EA005400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE2F5D25032F5DAA032E000000DF430200000005000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBE50EECB3EA944DD011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00000000760100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE120000007B0F0399A844DD015E7AA9AAA844DD015BF65243A944DD01140056003100000000002F5DAA0311005461736B42617200400009000400EFBE2F5D25032F5DAA032E000000F342020000000500000000000000000000000000000008B5EA005400610073006B0042006100720000001600E4003200B60900002F5DA203200048656C69756D2E6C6E6B0000460009000400EFBE2F5DAE032F5DAE032E000000FA4E020000000300000000000000000000000000000009131E01480065006C00690075006D002E006C006E006B0000001A00120000002B00EFBEA5575343A944DD011A00500000001D00EFBE0200480065006C00690075006D002E00470047005500510043005200510053004C00350057004F004B00480059004A0057005800510048005300410058004E004F00490000001A00220000001E00EFBE02005500730065007200500069006E006E006500640000001A000000FF'
+    option: browser-helium
+
+  # Taskbar with Librewolf
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\LibreWolf.lnk"""); $lnk.TargetPath="""$env:ProgramFiles\LibreWolf\librewolf.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-librewolf
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '3C0300004C0000000114020000000000C0000000000000468300800020000000CBD335681075DD01261836681075DD01127658BE864DDC01970100000000000001000000000000000000000000000000A4013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000E73BE19C8F71DD01839671A48F71DD011741297F6175DD01140056003100000000006F5D157611005461736B42617200400009000400EFBE6B5D2D1E6F5D15762E000000F23E0200000003000000000000000000000000000000AC5109005400610073006B00420061007200000016001201320097010000645BC263200046696C65204578706C6F7265722E6C6E6B007C0009000400EFBE6F5D15766F5D15762E0000000B080000000006000000000000000000520000000000EE77AC00460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000002000220000001E00EFBE02005500730065007200500069006E006E006500640000002000120000002B00EFBED60538681075DD012000420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F00720065007200000020000000A10000001C000000010000001C0000003100000000000000A00000001500000003000000964FCE3C100000007661696E00433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000007661696E000000000000000000000000265D4A2F2E60D64B998BFA3A7AD9CB20D496658B03E1F111A0B9000C2911C35B265D4A2F2E60D64B998BFA3A7AD9CB20D496658B03E1F111A0B9000C2911C35B45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000389388B708AD4D4E97626A9A8592DB4D000000000000000000000000F00200004C0000000114020000000000C0000000000000468300800020000000E6A8CF721075DD01E6A8CF721075DD01E6A8CF721075DD01BD04000000000000010000000000000000000000000000005C013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000E73BE19C8F71DD01839671A48F71DD011741297F6175DD01140056003100000000006F5D157611005461736B42617200400009000400EFBE6B5D2D1E6F5D15762E000000F23E0200000003000000000000000000000000000000AC5109005400610073006B0042006100720000001600CA003200BD0400006F5D207620004C69627265576F6C662E6C6E6B004C0009000400EFBE6F5D20766F5D20762E000000040800000000060000000000000000000000000000001AED2B004C00690062007200650057006F006C0066002E006C006E006B0000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBE46CECF721075DD011C002E0000001D00EFBE0200380033004300310043003000460033004600410038003500320034004200310000001C0000009D0000001C000000010000001C00000031000000000000009C0000001500000003000000964FCE3C100000007661696E00433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C4C69627265576F6C662E6C6E6B000060000000030000A058000000000000007661696E000000000000000000000000265D4A2F2E60D64B998BFA3A7AD9CB20ED96658B03E1F111A0B9000C2911C35B265D4A2F2E60D64B998BFA3A7AD9CB20ED96658B03E1F111A0B9000C2911C35B45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000389388B708AD4D4E97626A9A8592DB4D000000000000000000000000'
+    option: browser-librewolf
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000E73BE19C8F71DD01839671A48F71DD011741297F6175DD01140056003100000000006F5D157611005461736B42617200400009000400EFBE6B5D2D1E6F5D15762E000000F23E0200000003000000000000000000000000000000AC5109005400610073006B00420061007200000016001201320097010000645BC263200046696C65204578706C6F7265722E6C6E6B007C0009000400EFBE6F5D15766F5D15762E0000000B080000000006000000000000000000520000000000EE77AC00460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000002000120000002B00EFBED60538681075DD012000420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000002000220000001E00EFBE02005500730065007200500069006E006E0065006400000020000000005C0100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE12000000E73BE19C8F71DD01839671A48F71DD011741297F6175DD01140056003100000000006F5D157611005461736B42617200400009000400EFBE6B5D2D1E6F5D15762E000000F23E0200000003000000000000000000000000000000AC5109005400610073006B0042006100720000001600CA003200BD0400006F5D207620004C69627265576F6C662E6C6E6B004C0009000400EFBE6F5D20766F5D20762E000000040800000000060000000000000000000000000000001AED2B004C00690062007200650057006F006C0066002E006C006E006B0000001C00120000002B00EFBE46CECF721075DD011C002E0000001D00EFBE0200380033004300310043003000460033004600410038003500320034004200310000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C000000FF'
+    option: browser-librewolf
+
+
+  # Taskbar with Edge
+  - !powerShell:
+    command: '$taskbar="""$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"""; rm """$taskbar\*""" -Force -EA 0; $wsh=New-Object -ComObject WScript.Shell; $lnk=$wsh.CreateShortcut("""$taskbar\File Explorer.lnk"""); $lnk.TargetPath="""$env:systemroot\explorer.exe"""; $lnk.Save(); $lnk=$wsh.CreateShortcut("""$taskbar\Microsoft Edge.lnk"""); $lnk.TargetPath="""$env:ProgramFiles (x86)\Microsoft\Edge\Application\msedge.exe"""; $lnk.Save()'
+    runas: currentUserElevated
+    wait: true
+    option: browser-edge
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'FavoritesResolve'
+    type: REG_BINARY
+    data: '340300004C0000000114020000000000C0000000000000468300800020000000202D5EE1C398DC01A59361E1C398DC0125B37A4D0584DA01970100000000000001000000000000000000000000000000A0013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B00420061007200000016000E013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C0000009D0000001C000000010000001C0000002D000000000000009C0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C46696C65204578706C6F7265722E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF12442CB2B604F111B9A6000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000E70200004C0000000114020000000000C00000000000004683008000200000000026E9DBEAA4DC01C61AEADBEAA4DC01290975192EA5DC0186090000000000000100000000000000000000000000000052013A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01EF75E9DBEAA4DC0114005600310000000000575C798C11005461736B42617200400009000400EFBE485C5433575C7A8C2E000000382A0200000003000000000000000000000000000000180B2D015400610073006B0042006100720000001600C000320086090000585CA70C20004D4943524F537E312E4C4E4B0000560009000400EFBE575C7B8C575C7B8C2E000000A96D0200000002000000000000000000000000000000D737B0004D006900630072006F0073006F0066007400200045006400670065002E006C006E006B0000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C00120000002B00EFBED3EFE9DBEAA4DC011C001A0000001D00EFBE02004D005300450064006700650000001C0000009E0000001C000000010000001C0000002D000000000000009D0000001100000003000000A4FF866C1000000000433A5C55736572735C5573657220315C417070446174615C526F616D696E675C4D6963726F736F66745C496E7465726E6574204578706C6F7265725C517569636B204C61756E63685C557365722050696E6E65645C5461736B4261725C4D6963726F736F667420456467652E6C6E6B000060000000030000A058000000000000006465736B746F702D69626A70753165001CF46009E731F34AA74C0247DFE2A3BF022203EE2011F111B9A9000C29A6860F1CF46009E731F34AA74C0247DFE2A3BF022203EE2011F111B9A9000C29A6860F45000000090000A03900000031535053B1166D44AD8D7048A748402EA43D788C1D000000680000000048000000EC20B4B621D12B478E81BF11F5498123000000000000000000000000'
+    option: browser-edge
+
+  - !registryValue:
+    path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
+    value: 'Favorites'
+    type: REG_BINARY
+    data: '00A40100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01BCE460E1C398DC0114005600310000000000485C543311005461736B42617200400009000400EFBE485C5433485C54332E000000382A020000000300000000000000000000000000000044AB19015400610073006B004200610072000000160012013200970100008158C43A200046494C4545587E312E4C4E4B00007C0009000400EFBE485C5433485C54332E000000392A0200000003000000000000000000520000000000DBDC9100460069006C00650020004500780070006C006F007200650072002E006C006E006B00000040007300680065006C006C00330032002E0064006C006C002C002D003200320030003600370000001C00120000002B00EFBEA59361E1C398DC011C00420000001D00EFBE02004D006900630072006F0073006F00660074002E00570069006E0064006F00770073002E004500780070006C006F0072006500720000001C00260000001E00EFBE0200530079007300740065006D00500069006E006E006500640000001C00000000520100003A001F80C827341F105C1042AA032EE45287D668260001002600EFBE1200000007471CB9C398DC01FC115DE1C398DC01EF75E9DBEAA4DC0114005600310000000000575C798C11005461736B42617200400009000400EFBE485C5433575C7A8C2E000000382A0200000003000000000000000000000000000000180B2D015400610073006B0042006100720000001600C000320086090000585CA70C20004D4943524F537E312E4C4E4B0000560009000400EFBE575C7B8C575C7B8C2E000000A96D0200000002000000000000000000000000000000D737B0004D006900630072006F0073006F0066007400200045006400670065002E006C006E006B0000001C00120000002B00EFBED3EFE9DBEAA4DC011C001A0000001D00EFBE02004D005300450064006700650000001C00220000001E00EFBE02005500730065007200500069006E006E006500640000001C000000FF'
+    option: browser-edge
+
+  # Start Menu
+  - !status: {status: 'Configuring Start Menu'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"SearchEngine-Client-Package" /NoRestart'}
+  - !service: {name: 'wsearch', operation: change, startup: 4} #disableindexing
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search', value: 'BingSearchEnabled', type: REG_DWORD, data: '0'} #removebingsearch
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SearchSettings', value: 'IsAADCloudSearchEnabled', type: REG_DWORD, data: '0'} #turnoffcloudcontentsearchforworkaccount
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SearchSettings', value: 'IsDeviceSearchHistoryEnabled', type: REG_DWORD, data: '0'} #turnoffdevicesearchhistory
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SearchSettings', value: 'IsMSACloudSearchEnabled', type: REG_DWORD, data: '0'} #cloudcntentsearchoff
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SearchSettings', value: 'SafeSearchMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search', value: 'ConnectedSearchUseWeb', type: REG_DWORD, data: '0'} #turnoffonlinesearch
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search', value: 'DisableWebSearch', type: REG_DWORD, data: '1'} #disablewebsearch
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search', value: 'EnableDynamicContentInWSB', type: REG_DWORD, data: '0'} #disablesearchhighlights
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'DisableSearchBoxSuggestions', type: REG_DWORD, data: '1'} #Turn off display of recent search entries in the File Explorer search box
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search', value: 'SearchboxTaskbarMode', type: REG_DWORD, data: '0'} #disablesearchico
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings', value: 'IsDynamicSearchBoxEnabled', type: REG_DWORD, data: '0'} #turn off search highlights
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoStartMenuMFUprogramsList', type: REG_DWORD, data: '1'} #Remove frequent programs list from the Start Menu
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'ShowOrHideMostUsedApps', type: REG_DWORD, data: '2'} #Show or hide "Most used" list from Start menu
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'HideRecentlyAddedApps', type: REG_DWORD, data: '1'} #Remove "Recently added" list from Start Menu
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer', value: 'HideRecommendedPersonalizedSites', type: REG_DWORD, data: '1'} #Remove Personalized Website Recommendations from the Recommended section in the Start Menu
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'HideFastUserSwitching', type: REG_DWORD, data: '1'} #Hide entry points for Fast User Switching
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'Start_IrisRecommendations', type: REG_DWORD, data: '0'} #Disable Show recommendations for tips shortcuts new apps
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'Start_AccountNotifications', type: REG_DWORD, data: '0'} #turn off account related notifications
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoNetworkConnections', type: REG_DWORD, data: '1'} #Remove Network Connections from Start Menu
+
+  # Clean pins
+  - !powerShell: {command: '$p=\"$env:LOCALAPPDATA\Packages\"; Get-ChildItem $p -Directory | Where-Object{$_.Name -match \"Microsoft.Windows.StartMenuExperienceHost\"} | ForEach-Object{ Get-ChildItem \"$p\$($_.Name)\LocalState\" -Filter \"start*.bin\" -ErrorAction SilentlyContinue | Remove-Item -Force }; Get-ChildItem \"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" -Recurse -ErrorAction SilentlyContinue | Where-Object{$_.Name -match \"start.tilegrid\"} | Remove-Item -Force; Remove-ItemProperty -Path \"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Start\" -Name Config -Force -ErrorAction SilentlyContinue', runas: currentUserElevated, wait: true}
+
+  # Notepad
+  - !status: {status: 'Restoring old notepad'}
+  - !registryKey: {path: 'HKCR\*\OpenWithList\notepad.exe', operation: 'add'}
+  - !registryValue: {path: 'HKCR\Applications\notepad.exe', value: 'NoOpenWith', operation: 'delete'}
+  - !registryValue: {path: 'HKCR\Applications\notepad.exe\DefaultIcon', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\imageres.dll,-102'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Notepad', value: 'ShowStoreBanner', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Notepad', value: 'fWrapAround', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCR\.txt\ShellNew', value: 'ItemName', type: REG_EXPAND_SZ, data: '@%SystemRoot%\System32\notepad.exe,-470'}
+  - !registryValue: {path: 'HKCR\.txt\ShellNew', value: 'NullFile', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\txtfilelegacy', value: '', type: REG_SZ, data: 'Text Document'}
+  - !registryValue: {path: 'HKCR\txtfilelegacy', value: 'EditFlags', type: REG_DWORD, data: '2162688'}
+  - !registryValue: {path: 'HKCR\txtfilelegacy', value: 'FriendlyTypeName', type: REG_EXPAND_SZ, data: '@%SystemRoot%\System32\notepad.exe,-469'}
+  - !registryValue: {path: 'HKCR\txtfilelegacy\DefaultIcon', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\imageres.dll,-102'}
+  - !registryValue: {path: 'HKCR\txtfilelegacy\Shell\Open\Command', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\notepad.exe %1'}
+  - !registryValue: {path: 'HKCR\inifile', value: '', type: REG_SZ, data: 'Configuration Settings'}
+  - !registryValue: {path: 'HKCR\inifile', value: 'EditFlags', type: REG_DWORD, data: '2097152'}
+  - !registryValue: {path: 'HKCR\inifile', value: 'FriendlyTypeName', type: REG_SZ, data: '@%SystemRoot%\System32\shell32.dll,-10151'}
+  - !registryValue: {path: 'HKCR\inifile\DefaultIcon', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\imageres.dll,-69'}
+  - !registryValue: {path: 'HKCR\inifile\Shell\Edit\Command', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\notepad.exe %1'}
+  - !registryValue: {path: 'HKCR\inifile\Shell\Open\Command', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\notepad.exe %1'}
+  - !registryValue: {path: 'HKCR\.ini', value: '', type: REG_SZ, data: 'inifile'}
+  - !registryValue: {path: 'HKCR\inffile', value: '', type: REG_SZ, data: 'Setup Information'}
+  - !registryValue: {path: 'HKCR\inffile', value: 'FriendlyTypeName', type: REG_EXPAND_SZ, data: '@%SystemRoot%\System32\setupapi.dll,-2000'}
+  - !registryValue: {path: 'HKCR\inffile\DefaultIcon', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\imageres.dll,-69'}
+  - !registryValue: {path: 'HKCR\inffile\Shell\Open\Command', value: '', type: REG_EXPAND_SZ, data: '%SystemRoot%\System32\notepad.exe %1'}
+  - !registryValue: {path: 'HKCR\.inf', value: '', type: REG_SZ, data: 'inffile'}
+  - !registryValue: {path: 'HKCR\.log', value: '', type: REG_SZ, data: 'txtfilelegacy'}
+  - !registryValue: {path: 'HKCR\.scp', value: '', type: REG_SZ, data: 'txtfilelegacy'}
+  - !registryValue: {path: 'HKCR\.wtx', value: '', type: REG_SZ, data: 'txtfilelegacy'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1\Shell\Edit\Command', value: '', type: REG_SZ, data: '"C:\Windows\System32\notepad.exe" "%1"'}

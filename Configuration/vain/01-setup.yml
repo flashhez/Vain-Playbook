@@ -1,0 +1,87 @@
+---
+# ======================================================================
+#  01 - Setup
+#
+#  Imports the Vain power plan, Smart App Control,
+#  hosts, dark theme, wallpaper/lock screen, PowerShell, NGEN,
+#  user picture, removes the new Notepad and disables notifications.
+# ======================================================================
+
+actions:
+  - !status: {status: 'Initializing'}
+
+  # Power plan
+  - !status: {status: 'Importing power plan'}
+  - !cmd: {command: 'powercfg /import "%CD%\vain.pow" 01010110-0110-0001-0110-100101101110', runas: currentUserElevated, wait: true, exeDir: true}
+  - !cmd: {command: 'powercfg /setactive 01010110-0110-0001-0110-100101101110 >nul', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "powercfg -list | ForEach-Object { $guid = $_ -replace '.*Power Scheme GUID: ([a-f0-9-]+).*','$1'; if ($guid -ne $_) { powercfg -delete $guid 2>$null } }", runas: currentUserElevated, wait: true}
+
+  # Disable Smart App Control
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy', value: 'VerifiedAndReputablePolicyState', type: REG_DWORD, data: '0'}
+
+  # Hosts
+  - !cmd: {exeDir: true, command: 'copy /y hosts "%SystemRoot%\System32\drivers\etc\hosts" >nul'}
+  - !cmd: {command: 'ipconfig /flushdns >nul'}
+
+  # Dark Theme
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', value: 'SystemUsesLightTheme', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', value: 'AppsUseLightTheme', type: REG_DWORD, data: '0'}
+
+  # Wallpaper & Lockscreen
+  - !status: {status: 'Changing Wallpaper & Lockscreen'}
+  - !cmd: {exeDir: true, command: 'mkdir "%SystemRoot%\Web\Wallpaper\Vain" 2>nul & copy /y wallpaper.jpg "%SystemRoot%\Web\Wallpaper\Vain\img0.jpg" >nul'}
+  - !powerShell: {command: '$path=''C:\Windows\Web\Wallpaper\Vain\img0.jpg''; Get-ChildItem ''Registry::HKU'' | ForEach-Object {$key=$_.Name; [microsoft.win32.registry]::SetValue($key+''\Control Panel\Desktop'',''WallPaper'',$path,[Microsoft.Win32.RegistryValueKind]::String)}; Add-Type -TypeDefinition ''using System.Runtime.InteropServices; public class Wallpaper{[DllImport(\"user32.dll\",CharSet=CharSet.Auto)]public static extern int SystemParametersInfo(int uAction,int uParam,string lpvParam,int fuWinIni);}''; [Wallpaper]::SystemParametersInfo(20,0,$path,3)', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: 'Add-Type -AssemblyName System.Runtime.WindowsRuntime; [Windows.Storage.StorageFile,Windows.Storage,ContentType=WindowsRuntime] | Out-Null; [Windows.System.UserProfile.LockScreen,Windows.System.UserProfile,ContentType=WindowsRuntime] | Out-Null; $a=[System.WindowsRuntimeSystemExtensions].GetMethods(); $f=($a|Where-Object{$_.Name -eq ''AsTask'' -and $_.GetParameters()[0].ParameterType.Name -eq ''IAsyncOperation`1''})[0].MakeGenericMethod([Windows.Storage.StorageFile]).Invoke($null,@([Windows.Storage.StorageFile]::GetFileFromPathAsync(''C:\Windows\Web\Wallpaper\Vain\img0.jpg''))).GetAwaiter().GetResult(); ($a|Where-Object{$_.Name -eq ''AsTask'' -and $_.GetParameters()[0].ParameterType.Name -eq ''IAsyncAction''})[0].Invoke($null,@([Windows.System.UserProfile.LockScreen]::SetImageFileAsync($f))).GetAwaiter().GetResult()', runas: currentUserElevated, wait: true}
+  - !taskKill: {name: 'explorer'}
+
+  # Powershell
+  - !status: {status: 'Configuring Powershell'}
+  - !cmd: {command: 'setx POWERSHELL_TELEMETRY_OPTOUT 1 >nul'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell', value: 'ExecutionPolicy', type:  REG_SZ, data: 'Unrestricted'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging', value: 'EnableModuleLogging', type: REG_DWORD, data: '0'} #Turn off Module Logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging', value: 'EnableScriptBlockLogging', type: REG_DWORD, data: '0'} #Turn off PowerShell Script Block Logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging', value: 'EnableScriptBlockInvocationLogging', type: REG_DWORD, data: '0'} #Turn off PowerShell Script Block Logging
+
+  # Run ps1
+  - !cmd: {command: 'ftype Microsoft.PowerShellScript.1="%systemroot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -EP Unrestricted -File "%1" %* >nul'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1\Shell', value: '', type:  REG_SZ, data: 'Open'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1\Shell\Open\Command', value: '', type:  REG_EXPAND_SZ, data: '"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" "%1"'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1\Shell\RunAs', value: 'HasLUAShield', type:  REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellScript.1\Shell\RunAs\Command', value: '', type:  REG_EXPAND_SZ, data: '"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" "%1"'}
+  - !registryValue: {path: 'HKCR\.psm1', value: '', type:  REG_SZ, data: 'Microsoft.PowerShellModule.1'}
+  - !registryValue: {path: 'HKCR\Microsoft.PowerShellModule.1\Shell', value: '', type:  REG_SZ, data: 'Open'}
+  - !registryKey: {path: 'HKCR\.psm1\OpenWithProgids'}
+  - !registryKey: {path: 'HKCR\.ps1\OpenWithProgids'}
+
+  # Ngen
+  - !status: {status: 'Installing NGEN'}
+  - !powerShell: {command: '$env:PATH="$([Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory());$env:PATH";foreach($a in [AppDomain]::CurrentDomain.GetAssemblies()){if($a.Location){ngen install $a.Location /nologo 2>&1 | Out-Null}}'}
+
+  # User PFP
+  - !powerShell:
+    command: 'Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile((Join-Path $PWD ''user.png'')); $dest = [Environment]::GetFolderPath(''CommonApplicationData'') + ''\Microsoft\User Account Pictures\''; @{''user.png''=448;''user.bmp''=448;''guest.png''=448;''guest.bmp''=448;''user-192.png''=192;''user-48.png''=48;''user-40.png''=40;''user-32.png''=32}.GetEnumerator() | ForEach-Object { $b = New-Object System.Drawing.Bitmap($_.Value,$_.Value); $g = [System.Drawing.Graphics]::FromImage($b); $g.DrawImage($img,0,0,$_.Value,$_.Value); $b.Save($dest + $_.Key); $g.Dispose(); $b.Dispose() }; $img.Dispose()'
+    runas: currentUserElevated
+    exeDir: true
+    wait: true
+
+  - !powerShell:
+    command: 'Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile((Join-Path $PWD ''user.png'')); $sid = (New-Object System.Security.Principal.NTAccount($env:USERNAME)).Translate([System.Security.Principal.SecurityIdentifier]).Value; $dest = ''C:\Users\Public\AccountPictures\'' + $sid; if (!(Test-Path $dest)) { New-Item -Path $dest -ItemType Directory -Force }; $regPath = ''HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\'' + $sid; if (!(Test-Path $regPath)) { New-Item -Path $regPath -Force }; @(1080,448,424,240,208,192,96,64,48,40,32) | ForEach-Object { $b = New-Object System.Drawing.Bitmap($_,$_); $g = [System.Drawing.Graphics]::FromImage($b); $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic; $g.DrawImage($img,0,0,$_,$_); $f = $dest + ''\Image'' + $_ + ''.png''; $b.Save($f,[System.Drawing.Imaging.ImageFormat]::Png); $g.Dispose(); $b.Dispose(); Set-ItemProperty -Path $regPath -Name (''Image'' + $_) -Value $f -Type String }; $img.Dispose()'
+    exeDir: true
+    wait: true
+
+  # Remove W11 Notepad
+  - !appx: {name: 'Microsoft.WindowsNotepad*', type: family}
+
+  # Notifications
+  - !status: {status: 'Disabling Notifications'}
+  - !service: {name: 'WpnService', operation: change, startup: 4}
+  - !service: {name: "WpnService", operation: stop}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener', value: 'Value', type: REG_SZ, data: 'Deny'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications', value: 'ToastEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications', value: 'NoCloudApplicationNotification', type: REG_DWORD, data: '1'} #Turn off notifications network usage
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced', value: 'ShowSyncProviderNotifications', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', value: 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', value: 'NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings', value: 'NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK', type: REG_DWORD, data: '0'}
+  - !taskKill: {name: 'SystemSettings'}
+  - !taskKill: {name: 'ShellExperienceHost'}

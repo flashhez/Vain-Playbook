@@ -1,0 +1,84 @@
+---
+# ======================================================================
+#  02 - Security
+#
+#  Removes Windows Defender and disables UAC.
+# ======================================================================
+
+actions:
+  # Defender
+  - !status: {status: 'Removing Windows Defender'}
+  - !taskKill: {name: "NisSrv"}
+  - !taskKill: {name: "SecurityHealthHost"}
+  - !taskKill: {name: "SecurityHealthService"}
+  - !taskKill: {name: "SecurityHealthSystray"}
+  - !taskKill: {name: "SkypeBackgroundHost"}
+  - !taskKill: {name: "MsMpEng"}
+  - !taskKill: {name: "msiexec"}
+  - !taskKill: {name: "smartscreen"}
+  - !appx: {name: '*SecHealthUI*', type: family}
+  - !appx: {name: 'Microsoft.Windows.Apprep.ChxApp*', type: family}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\Real-Time Protection', value: 'DisableScanOnRealtimeEnable', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\Real-Time Protection', value: 'DisableOnAccessProtection', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection', value: 'DisableScanOnRealtimeEnable', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection', value: 'DisableBehaviorMonitoring', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter', value: 'EnabledV9', type: REG_DWORD, data: '0'} #Configure Windows Defender SmartScreen
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\System', value: 'EnableSmartScreen', type: REG_DWORD, data: '0'} #Configure Windows Defender SmartScreen
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\Sense', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\WinDefend', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\MsSecCore', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\wscsvc', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\WdFilter', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\WdBoot', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\WdNisDrv', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\WdNisSvc', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\MsSecWfp', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\MsSecFlt', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\wtd', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefsvc', operation: delete}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\SecurityHealthService', operation: delete}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components', value: 'ServiceEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Edge', value: 'SmartScreenEnabled', type: REG_SZ, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost', value: 'EnableWebContentEvaluation', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer', value: 'SmartScreenEnabled', type: REG_SZ, data: 'Off'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet', value: 'SubmitSamplesConsent', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows Defender\Spynet', value: 'SpyNetReporting', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run', value: 'SecurityHealth', operation: delete}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run', value: 'WindowsDefender', operation: delete}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthSystray.exe"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthService.exe"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthAgent.dll"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthHost.exe"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthCore.dll"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthProxyStub.dll"}
+  - !file: {path: "%systemroot%\\System32\\SecurityHealthUdk.dll"}
+  - !file: {path: "%ProgramW6432%\\Windows Defender"}
+  - !file: {path: "%ProgramData%\\Microsoft\\Windows Defender"}
+  - !file: {path: "%ProgramFiles(x86)%\\Windows Defender"}
+  - !file: {path: "%systemroot%\\System32\\drivers\\WdNisDrv.sys"}
+  - !file: {path: "%ProgramW6432%\\Windows Defender Advanced Threat Protection"}
+  - !file: {path: "%SystemDrive%\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection"}
+  - !file: {path: "%ProgramW6432%\\Microsoft Update Health Tools"}
+  - !file: {path: "%ProgramW6432%\\PCHealthCheck"}
+  - !file: {path: "%systemroot%\\System32\\smartscreen.exe"}
+  - !file: {path: "%systemroot%\\System32\\smartscreenps.dll"}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\UpdateHealthTools'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\rempl'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\CloudManagedUpdate'}
+  - !scheduledTask: {path: '\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance', operation: delete}
+  - !scheduledTask: {path: '\Microsoft\Windows\Windows Defender\Windows Defender Cleanup', operation: delete}
+  - !scheduledTask: {path: '\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan', operation: delete}
+  - !scheduledTask: {path: '\Microsoft\Windows\Windows Defender\Windows Defender Verification', operation: delete}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Classes\*\ShellEx\ContextMenuHandlers\EPP', operation: delete}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Classes\Drive\ShellEx\ContextMenuHandlers\EPP', operation: delete}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Classes\Directory\ShellEx\ContextMenuHandlers\EPP', operation: delete}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Windows-Defender-Default-Definitions" /NoRestart'}
+
+  # User Account Control
+  - !status: {status: 'Disabling UAC'}
+  - !service: {name: 'luafv', operation: change, startup: 4}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'EnableLUA', type:  REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'PromptOnSecureDesktop', type:  REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'ConsentPromptBehaviorAdmin', type:  REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System', value: 'ValidateAdminCodeSignatures', type:  REG_DWORD, data: '0'}

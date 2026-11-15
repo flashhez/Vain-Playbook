@@ -1,0 +1,113 @@
+---
+# ======================================================================
+#  05 - Services, boot and Hyper-V
+#
+#  Service startup types, printing, BCD settings and Hyper-V removal.
+# ======================================================================
+
+actions:
+  # Services
+  - !status: {status: 'Configuring Services'}
+  - !service: {name: 'BDESVC', operation: change, startup: 4} # Bitlocker
+  - !service: {name: 'CldFlt', operation: change, startup: 4} # Cloud Files Filter
+  - !service: {name: 'UCPD', operation: change, startup: 4} # User Choice Protection Driver
+  - !service: {name: 'onesyncsvc', operation: change, startup: 4} # Sync Host
+  - !service: {name: 'ShellHWDetection', operation: change, startup: 4}
+  - !service: {name: 'sysmain', operation: change, startup: 4}
+  - !service: {name: 'themes', operation: change, startup: 4}
+  - !service: {name: 'Beep', operation: change, startup: 4}
+  - !service: {name: 'CloudIdSvc', operation: change, startup: 4}
+  - !service: {name: 'WPCMonSvc', operation: change, startup: 4} # Parental Controls
+  - !service: {name: 'MapsBroker', operation: change, startup: 4}
+  - !service: {name: 'CloudBackupRestoreSvc', operation: change, startup: 4}
+  - !service: {name: 'fhsvc', operation: change, startup: 4} # File History
+  - !service: {name: 'semgrsvc', operation: change, startup: 4} # Payment Sand NFC
+  - !service: {name: 'wisvc', operation: change, startup: 4} # Windows Insider
+
+    # Telemetry / Reporting
+  - !service: {name: 'WdiSystemHost', operation: change, startup: 4}
+  - !service: {name: 'WdiServiceHost', operation: change, startup: 4}
+  - !service: {name: 'troubleshootingsvc', operation: change, startup: 4}
+  - !service: {name: 'diagnosticshub.standardcollector.service', operation: change, startup: 4}
+  - !service: {name: 'diagsvc', operation: change, startup: 4}
+  - !service: {name: 'intelpmt', operation: change, startup: 4}
+  - !service: {name: 'pla', operation: change, startup: 4}
+  - !service: {name: 'WerSvc', operation: change, startup: 4}
+  - !service: {name: 'svsvc', operation: change, startup: 4}
+  - !service: {name: 'diagtrack', operation: change, startup: 4}
+  - !service: {name: 'wercplsupport', operation: change, startup: 4}
+  - !service: {name: 'kdnic', operation: change, startup: 4}
+  - !service: {name: 'Wecsvc', operation: change, startup: 4}
+  - !service: {name: 'dps', operation: change, startup: 4}
+  - !service: {name: 'pcasvc', operation: change, startup: 4}
+  - !service: {name: 'dusmsvc', operation: change, startup: 4}
+  - !service: {name: 'ndu', operation: change, startup: 4}
+  - !service: {name: 'DSSvc', operation: change, startup: 4}
+
+    # Power Savings
+  - !service: {name: 'acpipagr', operation: change, startup: 4}
+  - !service: {name: 'AcpiPmi', operation: change, startup: 4}
+  - !service: {name: 'PRM', operation: change, startup: 4}
+  - !service: {name: 'acpitime', operation: change, startup: 4}
+  - !service: {name: 'bam', operation: change, startup: 4}
+  - !service: {name: 'dam', operation: change, startup: 4}
+
+    # Printing
+  - !service: {name: 'spooler', operation: change, startup: 4}
+  - !service: {name: 'printworkflowusersvc', operation: change, startup: 4}
+  - !service: {name: 'stisvc', operation: change, startup: 4}
+  - !service: {name: 'PrintNotify', operation: change, startup: 4}
+  - !service: {name: 'usbprint', operation: change, startup: 4}
+  - !service: {name: 'McpManagementService', operation: change, startup: 4}
+  - !service: {name: 'PrintScanBrokerService', operation: change, startup: 4}
+  - !service: {name: 'PrintDeviceConfigurationService', operation: change, startup: 4}
+
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Printing-PrintToPDFServices-Features" /NoRestart'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Printing-Foundation-Features" /NoRestart'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Printing-Foundation-InternetPrinting-Client" /NoRestart'}
+
+  # BCD Edit
+  - !status: {status: 'Configuring BCDEDIT'}
+  - !run: {exe: 'bcdedit', args: '/set {current} description "vain"'}
+  - !run: {exe: 'bcdedit', args: '/set bootmenupolicy Legacy'}
+  - !run: {exe: 'bcdedit', args: '/set disabledynamictick yes'}
+  - !run: {exe: 'bcdedit', args: '/deletevalue useplatformclock'}
+  - !run: {exe: 'bcdedit', args: '/deletevalue useplatformtick'}
+  - !run: {exe: 'bcdedit', args: '/set {current} nx optin'}
+  - !run: {exe: 'bcdedit', args: '/set {current} recoveryenabled no'}
+  - !run: {exe: 'bcdedit', args: '/set {current} disableelamdrivers yes'}
+  - !run: {exe: 'bcdedit', args: '/set {current} integrityservices disable'}
+  - !run: {exe: 'powercfg', args: '-h off'}
+  - !run: {exe: 'label', args: '%systemdrive% vain'}
+
+  # HyperV
+  - !status: {status: 'Disabling HyperV'}
+  - !service: {name: 'vmbushid', operation: change, startup: 4}
+  - !service: {name: 'HvHost', operation: change, startup: 4}
+  - !service: {name: 'vmickvpexchange', operation: change, startup: 4}
+  - !service: {name: 'storflt', operation: change, startup: 4}
+  - !service: {name: 'Vid', operation: change, startup: 4}
+  - !service: {name: 'hvservice', operation: change, startup: 4}
+  - !service: {name: 'vmbus', operation: change, startup: 4}
+  - !service: {name: 'HyperVideo', operation: change, startup: 4}
+  - !service: {name: 'gencounter', operation: change, startup: 4}
+  - !service: {name: 'vmicguestinterface', operation: change, startup: 4}
+  - !service: {name: 'vmicshutdown', operation: change, startup: 4}
+  - !service: {name: 'hyperkbd', operation: change, startup: 4}
+  - !service: {name: 'bttflt', operation: change, startup: 4}
+  - !service: {name: 'vmgid', operation: change, startup: 4}
+  - !service: {name: 'vmicheartbeat', operation: change, startup: 4}
+  - !service: {name: 'vmicvmsession', operation: change, startup: 4}
+  - !service: {name: 'vmicrdv', operation: change, startup: 4}
+  - !service: {name: 'vmictimesync', operation: change, startup: 4}
+  - !service: {name: 'vmicvss', operation: change, startup: 4}
+  - !service: {name: 'vpci', operation: change, startup: 4}
+  - !service: {name: 'storqosflt', operation: change, startup: 4}
+  - !service: {name: 'ndisvirtualbus', operation: change, startup: 4}
+  - !run: {exe: 'bcdedit', args: '/set hypervisorlaunchtype off'}
+  - !run: {exe: 'bcdedit', args: '/set vm no'}
+  - !run: {exe: 'bcdedit', args: '/set vsmlaunchtype Off'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Microsoft-Hyper-V-All" /NoRestart'}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'NDIS Virtual Network Adapter Enumerator' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'Microsoft Hyper-V Virtualization Infrastructure Driver' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'Microsoft Hypervisor Service' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}

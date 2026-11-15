@@ -1,0 +1,2 @@
+# Built playbooks are attached to a GitHub Release, not committed.
+*.apbx

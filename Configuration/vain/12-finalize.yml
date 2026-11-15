@@ -1,0 +1,182 @@
+---
+# ======================================================================
+#  12 - Finalize
+#
+#  File associations, performance counters, Vain Tools install and
+#  Governor configuration, cleanup.
+# ======================================================================
+
+actions:
+  # Configure File Associations
+  - !status: {status: 'Setting file associations'}
+  - !powerShell: {command: '.\SetFileTypeAssociation.ps1', exeDir: true, wait: true, runas: currentuser}
+
+  # Rebuild Perf Counters
+  - !status: {status: 'Rebuilding Perf Counters'}
+  - !run: {exe: 'lodctr', args: '/r'}
+  - !run: {exe: 'lodctr', args: '/r'}
+  - !run: {exe: 'winmgmt', args: '/resyncperf'}
+
+  # Disable printscreen
+  - !registryValue: {path: 'HKCU\Control Panel\Keyboard', value: 'PrintScreenKeyForSnippingEnabled', type: REG_DWORD, data: '0'}
+
+  # Vain Tools
+  - !status: {status: 'Installing Vain Tools'}
+  - !download: {url: 'https://raw.githubusercontent.com/flashhez/VainTools/main/VainUpdater.exe', destination: '%temp%\VainUpdater.exe', overwrite: true}
+  - !cmd: {command: '"%temp%\VainUpdater.exe" /silent', runas: currentUserElevated, wait: true}
+
+  # Configure Vain Tools
+  - !status: {status: 'Configuring Vain Tools'}
+  # Governor
+  # Rules
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\ApplicationFrameHost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\audiodg.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\ctfmon.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Discord.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dllhost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dwm.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dwm.exe\Threads\0', value: 'MatchDescription', type: REG_SZ, data: 'DWM Kernel Sensor Thread'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dwm.exe\Threads\0', value: 'Priority', type: REG_DWORD, data: '15'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dwm.exe\Threads\1', value: 'MatchDescription', type: REG_SZ, data: 'DWM Master Input Thread'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dwm.exe\Threads\1', value: 'Priority', type: REG_DWORD, data: '15'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EABackgroundService.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EACefSubProcess.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EADesktop.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EALocalHostSvc.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\explorer.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\fontdrvhost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\GameInputRedistService.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\GameInputSvc.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\gamingservices.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\gamingservicesnet.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\lsass.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\msedgewebview2.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\MSIAfterburner.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\NVDisplay.Container.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\NVIDIA Overlay.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\PerfWatson2.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\rundll32.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RuntimeBroker.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\SearchHost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\sihost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\ShellExperienceHost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\ShellHost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\StartMenu.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steam.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steamservice.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steamwebhelper.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\svchost.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\taskhostw.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Vain Tools.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Vain Governor.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\winlogon.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\winws.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\WMIADAP.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\WmiPrvSE.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+
+  # Thread Director: games (1 = Game; the director only starts for a process set to Game)
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\aces.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\AimLab_tb.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\BF2042.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\bf6.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\cod.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\cs2.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\deadlock.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\DeltaForceClient-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Discovery.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\dota2.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EscapeFromTarkov.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\FC26.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\FortniteClient-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\FPSAimTrainer-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\HaloInfinite.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\HuntGame.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\League of Legends.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Marvel-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\osu!.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Overwatch.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\PioneerGame.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Polaris-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\r5apex.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\r5apex_dx12.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RainbowSix.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RobloxPlayerBeta.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RocketLeague.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RustClient.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\SC2_x64.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\StreetFighter6.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\tf_win64.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\TslGame.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\VALORANT-Win64-Shipping.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\WorldOfTanks.exe', value: 'ThreadDirector', type: REG_DWORD, data: '1'}
+
+  # Thread Director: launchers (3 = Background; kept off the games cores, also with no game running)
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Battle.net.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Battle.net.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EpicGamesLauncher.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EpicGamesLauncher.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EpicWebHelper.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EpicWebHelper.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClient.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClient.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClientUx.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClientUx.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClientUxRender.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\LeagueClientUxRender.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Riot Client.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\Riot Client.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RiotClientServices.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\RiotClientServices.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\UbisoftConnect.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\UbisoftConnect.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\upc.exe', value: 'BoostEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\upc.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EABackgroundService.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EACefSubProcess.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EADesktop.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\EALocalHostSvc.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steam.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steamservice.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Profiles\1\Rules\steamwebhelper.exe', value: 'ThreadDirector', type: REG_DWORD, data: '3'}
+
+  # Settings
+  - !registryValue: {path: 'HKCU\Software\VainTools\Misc', value: 'DwmMmcss', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Misc', value: 'LowLatencyAudio', type: REG_DWORD, data: '1'}
+
+  - !registryValue: {path: 'HKCU\Software\VainTools\Taskbar', value: 'Enabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Taskbar', value: 'HideSeparator', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Taskbar', value: 'Color', type: REG_DWORD, data: '2147483648'}
+
+  - !registryValue: {path: 'HKCU\Software\VainTools\Screenshots', value: 'Enabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Screenshots', value: 'SaveToFile', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Screenshots', value: 'SketchMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Screenshots', value: 'HotkeyVk', type: REG_DWORD, data: '83'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Screenshots', value: 'HotkeyMods', type: REG_DWORD, data: '12'}
+
+  - !registryValue: {path: 'HKCU\Software\VainTools\Start', value: 'Enabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\VainTools\Start', value: 'PowerOpen', type: REG_DWORD, data: '1'}
+
+  - !registryValue: {path: 'HKCU\Software\VainTools\Theme', value: 'Palette', type: REG_DWORD, data: '0'}
+
+  - !registryValue: {path: 'HKCU\Software\VainTools\Windows', value: 'Enabled', type: REG_DWORD, data: '1'}
+
+  - !registryValue: {path: 'HKCU\Software\VainGovernor', value: 'SelectedProfile', type: REG_DWORD, data: '1'}
+
+  - !registryValue: {path: 'HKCU\Software\VainToolbox', value: 'Theme', type: REG_DWORD, data: '2'}
+
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Settings', value: 'Theme', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Settings', value: 'GuiRefreshMs', type: REG_DWORD, data: '400'}
+  - !registryValue: {path: 'HKCU\Software\VainGovernor\Settings', value: 'TrayRefreshMs', type: REG_DWORD, data: '3000'}
+
+  # Vain Toolbox shortcut and autostart (temporary)
+  - !status: {status: 'Creating shortcuts'}
+  - !powerShell: {command: '$w = New-Object -ComObject WScript.Shell; $v = $env:ProgramFiles + ''\vain''; $p = $env:ProgramData + ''\Microsoft\Windows\Start Menu\Programs''; $d = [Environment]::GetFolderPath(''Desktop''); function L($f, $n) { $l = $w.CreateShortcut($f + ''\'' + $n + ''.lnk''); $l.TargetPath = $v + ''\'' + $n + ''.exe''; $l.WorkingDirectory = $v; $l.Save() }; L $p ''Vain Toolbox''; L $p ''Vain Tools''; L $d ''Vain Toolbox''', runas: currentUserElevated, wait: true}
+  - !registryValue: {path: 'HKLM\Software\Microsoft\Windows\CurrentVersion\Run', value: 'Vain Tools', type: REG_SZ, data: '"C:\Program Files\vain\Vain Tools.exe"'}
+
+  # Cleanup
+  - !status: {status: 'Cleaning up'}
+  - !file: {path: '%SystemDrive%\PerfLogs'}
+  - !file: {path: '%SystemDrive%\inetpub'}
+  - !cmd: {command: 'del /f /s /q "%WINDIR%\Temp\*"  >nul 2>&1', wait: true}
+  - !cmd: {command: 'vssadmin delete shadows /all /quiet  >nul 2>&1', wait: true}
+  - !cmd: {command: 'for /f "tokens=*" %i in (''wevtutil el'') do wevtutil cl "%i" >nul 2>&1', wait: true}

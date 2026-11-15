@@ -1,0 +1,352 @@
+---
+# ======================================================================
+#  04 - Debloat
+#
+#  Windows optional features, OneDrive and Microsoft Edge removal,
+#  AppX package removal.
+# ======================================================================
+
+actions:
+  # Features
+  - !status: {status: 'Enabling DirectPlay'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Enable-Feature /FeatureName:"DirectPlay" /NoRestart /All'}
+
+  - !status: {status: 'Disabling StepsRecorder'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Remove-Capability /CapabilityName:"App.StepsRecorder~~~~0.0.1.0" /NoRestart'}
+
+  - !status: {status: 'Disabling Legacy Media Player'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"WindowsMediaPlayer" /NoRestart'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Remove-Capability /CapabilityName:"Media.WindowsMediaPlayer~~~~0.0.12.0" /NoRestart'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"MediaPlayback" /NoRestart'}
+
+  - !status: {status: 'Disabling SMBDirect'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"SMBDirect" /NoRestart'}
+
+  - !status: {status: 'Disabling RDC'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"MSRDC-Infrastructure" /NoRestart'}
+
+  - !status: {status: 'Disabling Workfolders Client'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"Workfolders-client" /NoRestart'}
+
+  - !status: {status: 'Disabling WCF services & portsharing'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"WCF-Services45" /NoRestart'}
+  - !run: {exe: 'DISM.exe', args: '/Online /Disable-Feature /FeatureName:"WCF-TCP-PortSharing45" /NoRestart'}
+
+  # Onedrive
+  - !status: {status: 'Removing OneDrive'}
+  - !cmd: {command: 'OneDriveSetup /uninstall', runas: currentUserElevated, wait: true}
+  - !file: {path: '%ProgramData%\Microsoft OneDrive'}
+  - !file: {path: '%UserProfile%\OneDrive'}
+  - !file: {path: '%LocalAppdata%\Microsoft\OneDrive'}
+  - !file: {path: '%SystemRoot%\System32\OneDriveSetup.exe'}
+  - !file: {path: '%SystemRoot%\SysWOW64\OneDriveSetup.exe'}
+  - !registryKey: {path: 'HKCU\Software\Microsoft\OneDrive'}
+  - !registryKey: {path: 'HKCU\Software\WOW6432Node\Microsoft\OneDrive'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\BannerStore'}
+  - !registryValue: {path: 'HKCU\Environment', value: 'OneDrive', operation: 'delete'}
+  - !powerShell: {command: "Get-ScheduledTask | Where-Object { $_.TaskName -like '*Oned*' } | ForEach-Object { Unregister-ScheduledTask -TaskName $_.TaskName -Confirm:$false }", runas: currentUserElevated, wait: true}
+
+  # Microsoft Edge
+  - !status: {status: 'Removing Microsoft Edge', option: '!browser-edge'}
+  - !service: {name: 'edgeupdate', operation: delete, option: '!browser-edge'}
+  - !service: {name: 'edgeupdatem', operation: delete, option: '!browser-edge'}
+  - !service: {name: 'MicrosoftEdgeElevationService', operation: delete, option: '!browser-edge'}
+  - !file: {path: '%ProgramFiles(x86)%\Microsoft\EdgeUpdate', option: '!browser-edge'}
+  - !file: {path: '%ProgramFiles(x86)%\Microsoft\EdgeCore', option: '!browser-edge'}
+  - !file: {path: '%ProgramFiles(x86)%\Microsoft\Edge', option: '!browser-edge'}
+  - !file: {path: '%ProgramFiles(x86)%\Microsoft\EdgeWebView', option: '!browser-edge'}
+  - !file: {path: '%LocalAppdata%\Microsoft\Edge', option: '!browser-edge'}
+  - !file: {path: '%ProgramData%\Microsoft\EdgeUpdate', option: '!browser-edge'}
+  - !file: {path: '%SystemRoot%\system32\Tasks\MicrosoftEdge*', option: '!browser-edge'}
+  - !file: {path: '%SystemRoot%\System32\config\systemprofile\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\Microsoft Edge.lnk', option: '!browser-edge'}
+  - !file: {path: '%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk', option: '!browser-edge'}
+  - !file: {path: '%SystemDrive%\Users\Public\Desktop\Microsoft Edge.lnk', option: '!browser-edge'}
+  - !file: {path: '%Appdata%\Microsoft\Internet Explorer\Quick Launch\Microsoft Edge.lnk', option: '!browser-edge'}
+  - !file: {path: '%Appdata%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Application\Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Application\edgeupdate', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\EventLog\Application\edgeupdatem', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\AppID\ie_to_edge_bho.dll', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\AppID\{1FCBE96C-1697-43AF-9140-2897C7C69767}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\AppID\{628ACE20-B77A-456F-A88D-547DB6CEEDD5}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\AppID\{31575964-95F7-414B-85E4-0E9A93699E13}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{1FCBE96C-1697-43AF-9140-2897C7C69767}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{4A749F25-A9E2-4CBE-9859-CF7B15255E14}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{628ACE20-B77A-456F-A88D-547DB6CEEDD5}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\CLSID\{B54934CD-71A6-4698-BDC2-AFEA5B86504C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\https\shell', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\http\shell', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\ie_to_edge_bho.IEToEdgeBHO', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\ie_to_edge_bho.IEToEdgeBHO.1', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\Interface\{C9C2B807-7731-4F34-81B7-44FF7779522B}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\microsoft-edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\MSEdgeHTM', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\MSEdgeMHT', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\MSEdgePDF', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\TypeLib\{C9C2B807-7731-4F34-81B7-44FF7779522B}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\.pdf\ShellEx\{8895b1c6-b41f-4c1c-a562-0d564250836f}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCU\Software\Microsoft\Active Setup\Installed Components\{9459C573-B17A-45AE-9F64-1857B5D58CEE}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCU\Software\Microsoft\Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCU\Software\Microsoft\EdgeUpdate', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Clients\StartMenuInternet\Microsoft Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Active Setup\Installed Components\{9459C573-B17A-45AE-9F64-1857B5D58CEE}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\EdgeUpdate', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\EdgeIntegration', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{c9abcf16-8dc2-4a95-bae3-24fd98f2ed29}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\ProtocolExecute\microsoft-edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\MediaPlayer\ShimInclusionList\msedge.exe', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Ext\PreApproved\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.html\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.htm\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.shtml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.svg\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.webp\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.xhtml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.xht\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\.xml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCU\Software\RegisteredApplications', value: 'Microsoft Edge', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts', value: 'MSEdgeHTM_microsoft-edge', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\EdgeUpdate', value: 'IsEdgeStableUninstalled', type: 'REG_DWORD' , data: '1', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\Capabilities\UrlAssociations', value: 'https', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\Capabilities\UrlAssociations', value: 'http', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Internet Explorer\Main\EnterpriseMode', value: 'MSEdgePath', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts', value: 'MSEdgeHTM_microsoft-edge', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Media Center', value: '{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Ext\CLSID', value: '{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\PreviewHandlers', value: '{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\RegisteredApplications', value: 'Microsoft Edge', operation: 'delete', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\AppID\ie_to_edge_bho.dll', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\AppID\{1FCBE96C-1697-43AF-9140-2897C7C69767}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\AppID\{628ACE20-B77A-456F-A88D-547DB6CEEDD5}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\AppID\{31575964-95F7-414B-85E4-0E9A93699E13}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{1FCBE96C-1697-43AF-9140-2897C7C69767}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{4A749F25-A9E2-4CBE-9859-CF7B15255E14}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{628ACE20-B77A-456F-A88D-547DB6CEEDD5}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\CLSID\{B54934CD-71A6-4698-BDC2-AFEA5B86504C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\https\shell', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\http\shell', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\ie_to_edge_bho.IEToEdgeBHO', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\ie_to_edge_bho.IEToEdgeBHO.1', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\Interface\{C9C2B807-7731-4F34-81B7-44FF7779522B}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\microsoft-edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\MSEdgeHTM', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\MSEdgeMHT', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\MSEdgePDF', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\TypeLib\{C9C2B807-7731-4F34-81B7-44FF7779522B}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKCR\WOW6432Node\.pdf\ShellEx\{8895b1c6-b41f-4c1c-a562-0d564250836f}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Clients\StartMenuInternet\Microsoft Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Active Setup\Installed Components\{9459C573-B17A-45AE-9F64-1857B5D58CEE}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\EdgeIntegration', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{c9abcf16-8dc2-4a95-bae3-24fd98f2ed29}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\ProtocolExecute\microsoft-edge', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\MediaPlayer\ShimInclusionList\msedge.exe', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Ext\PreApproved\{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.html\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.htm\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.shtml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.svg\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.webp\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.xhtml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.xht\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKCR\WOW6432Node\.xml\OpenWithProgIds', value: 'MSEdgeHTM', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate', value: 'IsEdgeStableUninstalled', type: 'REG_DWORD' , data: '1', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Capabilities\UrlAssociations', value: 'https', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Capabilities\UrlAssociations', value: 'http', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\EnterpriseMode', value: 'MSEdgePath', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts', value: 'MSEdgeHTM_microsoft-edge', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Media Center', value: '{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies\Ext\CLSID', value: '{1FD49718-1D00-4B19-AF5F-070AF6D5D54C}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\PreviewHandlers', value: '{3A84F9C2-6164-485C-A7D9-4B27F8AC009E}', operation: 'delete', option: '!browser-edge'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\WOW6432Node\RegisteredApplications', value: 'Microsoft Edge', operation: 'delete', option: '!browser-edge'}
+  - !appx: {name: '*Edge.GameAssist*', option: '!browser-edge'}
+  - !appx: {name: '*MicrosoftEdgeDevToolsClient*', option: '!browser-edge'}
+  - !appx: {name: '*MicrosoftEdge.Stable*', option: '!browser-edge'}
+  - !powerShell: {command: "Get-ScheduledTask | Where-Object { $_.TaskName -like '*MicrosoftEdgeUpdate*' } | ForEach-Object { Unregister-ScheduledTask -TaskName $_.TaskName -Confirm:$false }", runas: currentUserElevated, wait: true, option: '!browser-edge'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\DevHomeUpdate', operation: 'delete'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\EdgeUpdate', operation: 'delete'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\OutlookUpdate', operation: 'delete'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\CrossDeviceUpdate', operation: 'delete'}
+  - !powerShell: {command: "Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' | % { $_.PSObject.Properties | ? { $_.Name -like 'MicrosoftEdge*' } | % { Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name $_.Name } }", runas: currentUserElevated, wait: true}
+
+  # Appx
+  - !status: {status: 'Removing AppX Packages'}
+  - !powerShell: {command: "(Get-AppxPackage).PackageFamilyName | Out-File \"\"\"$([Environment]::GetFolderPath('Windows'))\\oldpackages.txt\"\"\"", runas: currentUserElevated, wait: true}
+  - !taskKill: {name: 'msteams*', ignoreErrors: true}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Communications', value: 'ConfigureChatAutoInstall', data: '0', type: REG_DWORD}
+  - !appx: {name: 'Microsoft.AVCEncoderVideoExtension*', type: family}
+  - !appx: {name: 'Microsoft.AV1VideoExtension*', type: family}
+  - !appx: {name: 'MicrosoftWindows.UndockedDevKit*', type: family}
+  - !appx: {name: 'Microsoft.MPEG2VideoExtension*', type: family}
+  - !appx: {name: 'Microsoft.ApplicationCompatibilityEnhancements*', type: family}
+  - !appx: {name: 'Microsoft.Windows.StartMenuExperienceHost*', type: family, option: 'removestartmenu'} #destroystouchpanelmenu
+  - !appx: {name: '*CortanaUI*', type : app, option: 'removestartmenu'}
+  - !appx: {name: '*CortanaUIFullTrustApp*', type : app, option: 'removestartmenu'}
+  - !appx: {name: 'Microsoft.HEIFImageExtension*', type: family}
+  - !appx: {name: 'Microsoft.HEVCVideoExtension*', type: family}
+  - !appx: {name: 'Microsoft.VP9VideoExtensions*', type: family}
+  - !appx: {name: 'MicrosoftTeams*', type: family}
+  - !appx: {name: 'MSTeams*', type: family}
+  - !appx: {name: '*Microsoft.Copilot*', type: family}
+  - !appx: {name: '*StartExperiencesApp*', type: family}
+  - !appx: {name: 'Clipchamp.Clipchamp*', type: family}
+  - !appx: {name: 'Microsoft.WindowsTerminal*', type: family}
+  - !appx: {name: 'MicrosoftWindows.LKG.AccountsService*', type: family}
+  - !appx: {name: 'MicrosoftWindows.LKG.RulesEngine*', type: family}
+  - !appx: {name: 'MicrosoftWindows.LKG.TwinSxS*', type: family}
+  - !appx: {name: 'MicrosoftWindows.LKG.Search*', type: family}
+  - !appx: {name: 'Microsoft.WebpImageExtension*', type: family}
+  - !appx: {name: 'Microsoft.WebMediaExtensions*', type: family}
+  - !appx: {name: 'Microsoft.RawImageExtension*', type: family}
+  - !appx: {name: 'Microsoft.HEIFImageExtension*', type: family}
+  - !appx: {name: '*WidgetsPlatformRuntime*', type: family}
+  - !appx: {name: '*MicrosoftWindows.LKG.DesktopSpotlight*', type: family}
+  - !appx: {name: 'Microsoft.Windows.AugLoop.CBS*', type: family}
+  - !appx: {name: '*MicrosoftWindows.LKG.IrisService*', type: family}
+  - !appx: {name: '*MicrosoftWindows.LKG.SpeechRuntime*', type: family}
+  - !appx: {name: '*ContentDeliveryManager*', type: family}
+  - !appx: {name: '*Microsoft.ECApp*', type: family}
+  - !appx: {name: '*Windows.CBSPreview*', type: family}
+  - !appx: {name: '*Tasbar*', type: family}
+  - !appx: {name: '*Microsoft.Lockapp*', type: family}
+  - !appx: {name: '*Microsoft.BioEnrollment*', type: family}
+  - !appx: {name: '*c5e2524a-ea46-4f67-841f-6a9465d9d515*', type: family}
+  - !appx: {name: '*F46D4000-FD22-4DB4-AC8E-4E1DDDE828FE*', type: family}
+  - !appx: {name: '*Microsoft.Windows.SecureAssessmentBrowser*', type: family}
+  - !appx: {name: '*Microsoft.Windows.AssignedAccessLockApp*', type: family}
+  - !appx: {name: '*NarratorQuickStart*', type: family}
+  - !appx: {name: '*Microsoft.AsyncTextService*', type: family}
+  - !appx: {name: '*XGpuEjectDialog*', type: family}
+  - !appx: {name: '*PeopleExperienceHost*', type: family}
+  - !appx: {name: '*MicrosoftWindows.Client.AIX*', type: family}
+  - !appx: {name: '*ParentalControls*', type: family}
+  - !appx: {name: '*Microsoft.Windows.CallingShellApp*', type: family}
+  - !appx: {name: '*MicrosoftWindows.CrossDevice*', type: family}
+  - !appx: {name: 'OutlookForWindows*', type: family}
+  - !appx: {name: 'MicrosoftCorporationII.QuickAssist*', type: family}
+  - !appx: {name: 'Microsoft.ScreenSketch*', type: family}
+  - !appx: {name: 'Disney.37853FC22B2CE*', type: family}
+  - !appx: {name: 'SpotifyAB.SpotifyMusic*', type: family}
+  - !appx: {name: 'Microsoft.549981C3F5F10*', type: family}
+  - !appx: {name: 'microsoft.windowscommunicationsapps*', type: family}
+  - !appx: {name: 'Microsoft.MSPaint*', type: family}
+  - !appx: {name: 'Microsoft.Getstarted*', type: family}
+  - !appx: {name: 'Microsoft.ZuneVideo*', type: family}
+  - !appx: {name: 'MicrosoftCorporationII.MicrosoftFamily*', type: family}
+  - !appx: {name: 'Microsoft.MixedReality.Portal*', type: family}
+  - !appx: {name: 'Microsoft.Windows.DevHome*', type: family}
+  - !appx: {name: 'Microsoft.BingWeather*', type: family}
+  - !appx: {name: 'Microsoft.BingSearch*', type: family}
+  - !appx: {name: 'Microsoft.Windows.Photos*', type: family}
+  - !appx: {name: 'Microsoft.BingNews*', type: family}
+  - !appx: {name: 'Microsoft.OutlookForWindows*', type: family}
+  - !appx: {name: 'Microsoft.GetHelp*', type: family}
+  - !appx: {name: 'Microsoft.Microsoft3DViewer*', type: family}
+  - !appx: {name: 'Microsoft.MicrosoftOfficeHub*', type: family}
+  - !appx: {name: 'Microsoft.MicrosoftSolitaireCollection*', type: family}
+  - !appx: {name: 'Microsoft.MicrosoftStickyNotes*', type: family}
+  - !appx: {name: 'Microsoft.Office.OneNote*', type: family}
+  - !appx: {name: 'Microsoft.People*', type: family}
+  - !appx: {name: 'Microsoft.PowerAutomateDesktop*', type: family}
+  - !appx: {name: 'Microsoft.SkypeApp*', type: family}
+  - !appx: {name: 'Microsoft.Todos*', type: family}
+  - !appx: {name: 'MicrosoftWindows.CrossDevice*', type: family}
+  - !appx: {name: 'Microsoft.WindowsAlarms*', type: family}
+  - !appx: {name: 'Microsoft.WindowsCamera*', type: family}
+  - !appx: {name: 'Microsoft.WindowsFeedbackHub*', type: family}
+  - !appx: {name: 'Microsoft.WindowsMaps*', type: family}
+  - !appx: {name: 'Microsoft.WindowsSoundRecorder*', type: family}
+  - !appx: {name: 'Microsoft.*MicrosoftWindows.Client.AIX*', type: family}
+  - !appx: {name: 'MicrosoftWindows.Client.CoreAI*', type: family}
+  - !appx: {name: '*Livtop*', type: family}
+  - !appx: {name: '*InpApp*', type: family}
+  - !appx: {name: '*Speion*', type: family}
+  - !appx: {name: '*Voiess*', type: family}
+  - !appx: {name: '*Filons*', type: family}
+  - !appx: {name: 'MicrosoftWindows.Client.WebExperience*', type: family}
+  - !appx: {name: '*CredDialogHost*', type: family}
+  - !appx: {name: '*AsyncTextService*', type: family}
+  - !appx: {name: '*PinningConfirmationDialog*', type: family}
+  - !appx: {name: '*client.oobe*', type: family}
+  - !appx: {name: '*client.photon*', type: family}
+  - !appx: {name: '*OOBENetworkCaptivePortal*', type: family}
+  - !appx: {name: '*OOBENetworkConnectionFlow*', type: family}
+  - !appx: {name: '*CapturePicker*', type: family}
+  - !appx: {name: '*ScreenClipping*', type: app}
+  - !appx: {name: '*WindowsBackup*', type: app}
+  - !appx: {name: '*DesktopSpotlight*', type: app}
+  - !appx: {name: '*IrisService*', type: app}
+  - !appx: {name: '*CopilotNudges*', type: app}
+  - !appx: {name: '*CrossDeviceResume*', type: app}
+  - !appx: {name: '*FamilyValueProp*', type : app}
+  - !appx: {name: '*WebExperienceHost*', type : app}
+  - !appx: {name: '*PackageMetadata', type : app}
+  - !appx: {name: '*Global.AppListBackup*', type : app}
+  - !appx: {name: '*Global.DesktopStickerEditor*', type : app}
+  - !appx: {name: '*DesktopStickerEditorCentennial*', type : app}
+  - !appx: {name: '*Global.DesktopVisual*', type : app}
+  - !appx: {name: '*Global.LiveCaptionsDesktop*', type : app}
+  - !appx: {name: '*LogonWebHost*', type : app}
+  - !appx: {name: '*VisualAssist*', type : app}
+  - !appx: {name: '*Global.FeatureDiscoverability*', type : app}
+  - !appx: {name: '*Global.MicrosoftGraphRecentItemsManager*', type : app}
+  - !appx: {name: '*Global.PersonaCardManager*', type : app}
+  - !appx: {name: '*Global.RulesEngine*', type : app}
+  - !appx: {name: '*Global.WindowsMigration*', type : app}
+  - !appx: {name: '*MiniSearchUI*', type : app}
+  - !appx: {name: '*FESearchUI*', type : app}
+  - !appx: {name: '*Global.SpeechRecognizerExtension*', type : app}
+  - !appx: {name: '*Global.TwinSxS*', type : app}
+  - !appx: {name: '*Global.SpeechSynthesizerExtension*', type : app}
+  - !appx: {name: '*Global.ValueBanner*', type : app}
+  - !appx: {name: '*Global.WindowsPeopleExperience*', type : app}
+  - !appx: {name: '*Global.ExperienceExtensions*', type : app}
+  - !appx: {name: '*Global.WsxPackManager*', type : app}
+  - !appx: {name: '*Global.BackupBanner*', type : app}
+  - !appx: {name: '*Global.VoiceAccessHost*', type : app}
+  - !appx: {name: '*Global.VoiceAccessPlugin*', type : app}
+  - !appx: {name: '*CrossDeviceResumeApp*', type: app}
+  - !appx: {name: '*Global.DragTray*', type: app}
+  - !appx: {name: '*Global.LockCanvas*', type: app}
+  - !appx: {name: '*Global.WidgetDataModel*', type: app}
+  - !appx: {name: '*Global.WidgetPicker*', type: app}
+  - !appx: {name: '*Global.WidgetViewUWP*', type: app}
+  - !appx: {name: '*Global.WidgetViewWinUI3*', type: app}
+  - !appx: {name: '*Global.wsw*', type: app}
+  - !appx: {name: '*ActionRuntime*', type : app}
+  - !appx: {name: '*Global.ActionUI*', type : app}
+  - !appx: {name: '*Global.ActionUi.Common*', type : app}
+  - !appx: {name: '*SoftLanding*', type : app}
+  - !appx: {name: '*DiscoveryHub*', type : app}
+  - !appx: {name: '*DiscoveryHubWidgetHost*', type : app}
+  - !appx: {name: '*Global.PeopleExperiencePlatform*', type : app}
+  - !appx: {name: '*Global.PeopleWidget*', type : app}
+  - !appx: {name: '*Global.WindowsPersonaCard*', type : app}
+  - !appx: {name: '*Global.AccountDialog*', type: app}
+  - !appx: {name: '*Global.Accounts*', type: app}
+  - !appx: {name: '*SettingsModelService*', type: app}
+  - !appx: {name: '*Global.StartMenu*', type: app, option: 'removestartmenu'}
+  - !powerShell: {command: 'Get-AppxPackage Microsoft.YourPhone* | Remove-AppxPackage; Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq ''Microsoft.YourPhone'' } | Remove-AppxProvisionedPackage -Online', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: 'Get-AppxPackage MicrosoftTeams* | Remove-AppxPackage; Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq ''MicrosoftTeams'' } | Remove-AppxProvisionedPackage -Online', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: 'Get-AppxPackage Microsoft.Windows.DevHome* | Remove-AppxPackage; Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq ''Microsoft.Windows.DevHome'' } | Remove-AppxProvisionedPackage -Online', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: 'Get-AppxPackage MicrosoftWindows.CrossDevice* | Remove-AppxPackage; Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq ''MicrosoftWindows.CrossDevice'' } | Remove-AppxProvisionedPackage -Online', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: '$a = """$([Environment]::GetFolderPath(''Windows''))\\oldpackages.txt"""; (diff (gc $a) ((Get-AppxPackage).PackageFamilyName)).InputObject | Foreach-Object { New-Item -Path ''HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Appx\\AppxAllUserStore\\Deprovisioned'' -Name $_ -Force | Out-Null }; Remove-Item $a -Force', runas: currentUserElevated, wait: true}
+  - !appx: {operation: clearCache, name: '*MicrosoftWindows.Client.CBS*'}
+  - !appx: {operation: clearCache, name: '*Microsoft.Windows.Search*'}
+  - !appx: {operation: clearCache, name: '*Microsoft.Windows.SecHealthUI*'}
+  - !appx: {operation: clearCache, name: '*StartMenuExperienceHost*'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications\MicrosoftWindows.Client.CBS_cw5n1h2txyewy', value: 'Disabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications\MicrosoftWindows.Client.CBS_cw5n1h2txyewy', value: 'DisabledByUser', type: REG_DWORD, data: '1'}

@@ -1,0 +1,146 @@
+---
+# ======================================================================
+#  06 - Performance
+#
+#  Kernel, power, timer, memory, storage, USB, NDIS, WDF, DWM, MMCSS
+#  and input tweaks; firewall notifications/logging; FTH, Game Bar,
+#  Game Mode and Mobsync.
+# ======================================================================
+
+actions:
+  # Tweaks
+  - !status: {status: 'Applying performance tweaks'}
+  - !powerShell: { command: "$v=[byte[]](0,0,0,0); Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}' -EA 0 | Get-ChildItem -Inc 'PowerSettings' -EA 0 | %{ $p=$_.PSPath; 'IdlePowerState','PerformanceIdleTime','ConservationIdleTime' | %{ Set-ItemProperty -Path $p -Name $_ -Value $v -Type Binary -EA 0 } }", runas: currentUserElevated, wait: true }
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Wdf', value: 'WdfGlobalLogsDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Wdf', value: 'WdfGlobalSleepStudyDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows', value: 'RITdemonTimerPowerSaveElapse', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows', value: 'RITdemonTimerPowerSaveCoalescing', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows', value: 'ProcessDCEsInUseThreshold', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows', value: 'DesktopHeapLogging', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\Dwm', value: 'DisableProjectedShadowsRendering', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile', value: 'SystemResponsiveness', type:  REG_DWORD, data: '10'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl', value: 'Win32PrioritySeparation', type:  REG_DWORD, data: '36'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\usbflags', value: 'DisableHCS0Idle', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\usbflags', value: 'Allow64KLowOrFullSpeedControlTransfers', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BamThrottling', value: 'DisableWindowHinting', type: REG_DWORD, data: '1'}
+  - !powerShell: {command: 'Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi | ForEach-Object { $_.enable = $false; $_.psbase.put() } 2>$null | Out-Null', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: 'Get-ChildItem HKLM:\SYSTEM\CurrentControlSet\Control\usbflags | Where-Object { $_.PSChildName.Length -eq 12 } | ForEach-Object { Set-ItemProperty $_.PSPath DisableLPM 1 -Type DWord -Force }', runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-ChildItem HKLM:\\SYSTEM\\CurrentControlSet\\Enum -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $p = $_.PSPath; try { $props = Get-ItemProperty $p -ErrorAction Stop; if($props) { $props.PSObject.Properties | ForEach-Object { if ($_.Name -in 'EnhancedPowerManagementEnabled','AllowIdleIrpInD3','DeviceSelectiveSuspended','DeviceResetNotificationEnabled','EnableSelectiveSuspend','SelectiveSuspendEnabled','SelectiveSuspendOn','SelectiveSuspendTimeout','WaitWakeEnabled','WakeEnabled','D3ColdSupported','WdfDirectedPowerTransitionEnable','EnableIdlePowerManagement','IdleInWorkingState','IdleTimeoutInMS','IdleTimeoutPeriodInMilliSec','MinimumIdleTimeoutInMS','EnableHIPM','EnableHDDParking','EnableDIPM','SuppressInputInCS','SystemInputSuppressionEnabled','WdfDefaultIdleInWorkingState','WdfDirectedPowerTransitionChildrenOptional','WdfUseWdfTimerForPofx','SleepstudyState') { try { Set-ItemProperty $p $_.Name 0 -Type DWord -Force -ErrorAction Stop } catch {} } elseif ($_.Name -in 'DisableD3Cold','DisableIdlePowerManagement','DisableRuntimePowerManagement','EnhancedPowerManagementUseMonitor') { try { Set-ItemProperty $p $_.Name 1 -Type DWord -Force -ErrorAction Stop } catch {} } } } } catch {} }", runas: currentUserElevated, wait: true}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'EnergyEstimationEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'EventProcessorEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'FxAccountingTelemetryDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'DeepIoCoalescingEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'ThermalTelemetryVerbosity', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'StandbyConnectivityGracePeriod', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'EnforceAusterityMode', type: REG_DWORD, data: '0', builds: ['>=26100']}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'HeteroMultiClassParkingEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'HibernateEnabledDefault', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'SleepstudyAccountingEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'SkipHibernateMemoryMapValidation', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'HiberbootEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'CoalescingFlushInterval', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'CoalescingTimerInterval', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'MSDisabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'IdleProcessorsRequireQosManagement', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'DisableInboxPepGeneratedConstraints', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'IgnoreCsComplianceCheck', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'PowerWatchdogRequestQueueTimeoutMsec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'PowerWatchdogPoCalloutTimeoutMsec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'PowerWatchdogPowerOnGdiTimeoutMsec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'PowerWatchdogDwmSyncFlushTimeoutMsec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Power', value: 'PowerWatchdogDrvSetMonitorTimeoutMsec', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters\Device', value: 'IdlePowerMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters\Device', value: 'DisableDSTThrottle', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Storage', value: 'StorageD3InModernStandby', type: REG_DWORD, data: '0'}
+  - !cmd: {command: '(for /f "tokens=*" %s in (''reg query "HKLM\SYSTEM\CurrentControlSet\Enum" /s /f "StorPort" ^| findstr /e "StorPort" '') do Reg.exe add "%s" /v "EnableIdlePowerManagement" /t REG_DWORD /d "0" /f & Reg.exe add "%s" /v "DisableD3Cold" /t REG_DWORD /d "1" /f)', exeDir: true, wait: true, runas: currentUserElevated}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager', value: 'DisableWpbtExecution', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'AlwaysTrackIoBoosting', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'ForceBugcheckForDpcWatchdog', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'EnableWerUserReporting', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'SeLpacEnableWatsonReporting', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'SerializeTimerExpiration', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'EnablePerCpuClockTickScheduling', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'TimerCheckFlags', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'InterruptSteeringFlags', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'ForceParkingRequested', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'CacheAwareScheduling', type: REG_DWORD, data: '39'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager', value: 'SelfHealingEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager', value: 'VirtualizationEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager', value: 'FastBoot', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager', value: 'BugcheckRecoveryEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'DisablePagingExecutive', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'DisablePageCombining', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'TrackLockedPages', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power', value: 'WatchdogResumeTimeout', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power', value: 'WatchdogSleepTimeout', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power', value: 'Win32CalloutWatchdogBugcheckEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power', value: 'IdleScanInterval', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power', value: 'SkipTickOverride', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\I/O System', value: 'DisableDiskCounters', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\I/O System', value: 'IoAllowLoadCrashDumpDriver', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive', value: 'ForceEnableMutantAutoboost', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Input\DelayZonePalmRejection', value: 'RejectionEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Input\DelayZonePalmRejection', value: 'DisableTimeThreshold', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Input\DelayZonePalmRejection', value: 'DelayZonePalmRejectionExtensionSizeDips', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Input\DelayZonePalmRejection', value: 'DelayZonePalmRejectionThresholdMS', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'TrackNblOwner', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'DisableNDISWatchDog', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'DisableNaps', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'NoPauseOnSuspend', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'DebugLoggingMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'DisableWDIWatchdogForceBugcheck', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'DisableReenumerationTimeoutBugcheck', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters', value: 'EnableNicAutoPowerSaverInSleepStudy', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\Control Panel\Mouse', value: 'RawMouseThrottleEnabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Control Panel\Mouse', value: 'RawMouseThrottleForced', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\Control Panel\Mouse', value: 'RawMouseThrottleDuration', type: REG_DWORD, data: '20'}
+  - !registryValue: {path: 'HKCU\Control Panel\Mouse', value: 'RawMouseThrottleLeeway', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\Software\Microsoft\Input', value: 'InputServiceEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\Software\Microsoft\Input', value: 'InputServiceEnabledForCCI', type: REG_DWORD, data: '0'}
+
+  # Firewall
+  - !status: {status: 'Configuring firewall'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile', value: 'DisableNotifications', type:  REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\DomainProfile', value: 'DisableNotifications', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile', value: 'DisableNotifications', type: REG_DWORD, data: '1'}
+
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile\Logging', value: 'LogDroppedPackets', type: REG_DWORD, data: '0'} #DisAllow logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile\Logging', value: 'LogSuccessfulConnections', type: REG_DWORD, data: '0'} #DisAllow logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile\Logging', value: 'LogDroppedPackets', type: REG_DWORD, data: '0'} #DisAllow logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile\Logging', value: 'LogSuccessfulConnections', type: REG_DWORD, data: '0'} #DisAllow logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\PublicProfile\Logging', value: 'LogDroppedPackets', type: REG_DWORD, data: '0'} #DisAllow logging
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\PublicProfile\Logging', value: 'LogSuccessfulConnections', type: REG_DWORD, data: '0'} #DisAllow logging
+
+  - !registryKey: {path: 'HKLM\System\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', operation: delete}
+  - !registryKey: {path: 'HKLM\System\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules'}
+
+  - !registryValue: {path: 'HKLM\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', value: 'Block SearchApp', type: REG_SZ, data: 'v2.32|Action=Block|Active=TRUE|Dir=Out|RA42=IntErnet|RA62=IntErnet|App=%SystemRoot%\SystemApps\Microsoft.Windows.Search_cw5n1h2txyewy\SearchApp.exe|Name=Block SearchApp|Desc=Block Cortana Outbound UDP/TCP Traffic|'}
+  - !registryValue: {path: 'HKLM\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', value: 'Block SearchHost', type: REG_SZ, data: 'v2.32|Action=Block|Active=TRUE|Dir=Out|RA42=IntErnet|RA62=IntErnet|App=%SystemRoot%\SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\SearchHost.exe|Name=Block SearchHost|Desc=Block Cortana Outbound UDP/TCP Traffic|'}
+  - !registryValue: {path: 'HKLM\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', value: 'Block StartMenuExperienceHost', type: REG_SZ, data: 'v2.32|Action=Block|Active=TRUE|Dir=Out|RA42=IntErnet|RA62=IntErnet|App=%SystemRoot%\SystemApps\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\StartMenuExperienceHost.exe|Name=Block StartMenuExperienceHost|Desc=Block Cortana Outbound UDP/TCP Traffic|'}
+  - !registryValue: {path: 'HKLM\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', value: 'Block SystemSettings', type: REG_SZ, data: 'v2.32|Action=Block|Active=TRUE|Dir=Out|RA42=IntErnet|RA62=IntErnet|App=%SystemRoot%\ImmersiveControlPanel\SystemSettings.exe|Name=Block SystemSettings|Desc=Block Windows Settings Outbound UDP/TCP Traffic|'}
+  - !registryValue: {path: 'HKLM\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', value: 'Block Explorer', type: REG_SZ, data: 'v2.32|Action=Block|Active=TRUE|Dir=Out|RA42=IntErnet|RA62=IntErnet|App=%SystemRoot%\explorer.exe|Name=Block Explorer|Desc=Block Explorer Outbound UDP/TCP Traffic|'}
+
+  # Disable FTH
+  - !powerShell: {command: 'Set-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\FTH" -Name "Enabled" -Value 0 -Type DWORD; rundll32.exe fthsvc.dll,FthSysprepSpecialize', wait: true}
+
+  # Disable Gamebar
+  - !status: {status: 'Disabling Game Bar & Game Mode'}
+  - !registryValue: {path: 'HKCU\System\GameConfigStore', value: 'GameDVR_Enabled', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR', value: 'AppCaptureEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\GameBar', value: 'GamePanelStartupTipIndex', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\GameBar', value: 'ShowStartupPanel', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\GameBar', value: 'UseNexusForGameBarEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter', value: 'ActivationType', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR', value: 'AllowGameDVR', type: REG_DWORD, data: '0'} #Enables or disables Windows Game Recording and Broadcasting
+  - !registryValue: {path: 'HKCR\ms-gamebar', value: '', type: REG_SZ, data: 'URL:ms-gamebar'}
+  - !registryValue: {path: 'HKCR\ms-gamebar', value: 'URL Protocol', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\ms-gamebar', value: 'NoOpenWith', type: REG_SZ, data: ''}
+  - !registryValue: {path: 'HKCR\ms-gamebar\shell\open\command', value: '', type: REG_EXPAND_SZ, data: '%systemroot%\System32\systray.exe'}
+
+  # Disable Gamemode
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\GameBar', value: 'AllowAutoGameMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKCU\SOFTWARE\Microsoft\GameBar', value: 'AutoGameModeEnabled', type: REG_DWORD, data: '0'}
+
+  # Disable Mob Sync
+  - !cmd: {command: 'ren %systemroot%\system32\mobsync.exe mobsync.old', exeDir: true, wait: true}
+  - !run: {exe: 'taskkill', args: '/im mobsync.exe /f '}

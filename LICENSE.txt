@@ -1,0 +1,34 @@
+Vain Playbook
+Copyright (c) 2024-2026 VAIN. All rights reserved.
+
+1. Use. The Vain Playbook is free. You may download it and apply it on any number of computers,
+   for personal or commercial purposes, free of charge.
+
+2. Where to get it. The playbook is distributed only through its official page,
+   https://github.com/flashhez/Vain-Playbook. To share it, link to that page rather than passing on
+   the file itself. Hosting, mirroring or bundling it elsewhere needs written permission from VAIN.
+
+3. What you may not do. You may not sell the playbook, or distribute it or any part of it in
+   modified form. You may change it for use on your own computers. You may not charge for
+   installing, applying or setting up the playbook on someone else's computer, or offer it as part
+   of a paid service.
+
+4. Names. "Vain Playbook", "VAIN" and "VAIN.ZONE" may not be used as or in the name of any other
+   playbook, modified copy or download, and may not be used in a way that suggests VAIN made or
+   endorses something it didn't.
+
+5. No warranty. The playbook changes core parts of Windows, turns off Windows Defender and other
+   security features, and removes Windows components. It is meant for a fresh install. It is
+   provided "as is", without warranty of any kind, express or implied, including fitness for a
+   particular purpose. In no event shall the authors be liable for any damage or loss arising from
+   its use, including loss of data.
+
+6. Other software. The software the playbook installs (Vain Tools, the Visual C++ runtimes,
+   DirectX, 7-Zip and the browser you choose) is downloaded from its publishers during the install
+   and is not part of the playbook. Each keeps its own licence; Vain Tools' is at
+   https://github.com/flashhez/VainTools. The browser logos shown during setup are trademarks of
+   their owners and are used only to name the browsers.
+
+7. Third-party code. The playbook includes code by others (PS-SFTA, RunAsTI). It is not covered by
+   this licence: each part keeps its own, listed in THIRD-PARTY-NOTICES.txt, and nothing here
+   limits the rights those licences give you.

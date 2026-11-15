@@ -1,0 +1,16 @@
+---
+actions:
+  - !task: {path: 'vain\01-setup.yml'}
+  - !task: {path: 'vain\02-security.yml'}
+  - !task: {path: 'vain\03-apps.yml'}
+  - !task: {path: 'vain\04-debloat.yml'}
+  - !task: {path: 'vain\05-services.yml'}
+  - !task: {path: 'vain\06-performance.yml'}
+  - !task: {path: 'vain\07-scheduled-tasks.yml'}
+  - !task: {path: 'vain\08-tweaks.yml'}
+  - !task: {path: 'vain\09-privacy.yml'}
+  - !task: {path: 'vain\10-explorer.yml'}
+  - !task: {path: 'vain\11-system.yml'}
+  - !task: {path: 'vain\12-finalize.yml'}
+  # Last: the network reset drops the connection, so every download comes before it.
+  - !task: {path: 'vain\13-network.yml'}

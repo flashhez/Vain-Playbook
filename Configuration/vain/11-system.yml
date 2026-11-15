@@ -1,0 +1,88 @@
+---
+# ======================================================================
+#  11 - System
+#
+#  Unneeded devices, defaultuser0, CPU mitigations, VBS/HVCI,
+#  DMA remapping, Windows Update policy and OEM information.
+# ======================================================================
+
+actions:
+  # Disable Useless Devices
+  - !status: {status: 'Disabling unneeded devices'}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'ACPI Processor Aggregator' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'ACPI Thermal Zone' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'ACPI Wake Alarm' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+  - !powerShell: {command: "Get-PnpDevice -FriendlyName 'Intel(R) Platform Monitoring Technology Device' -ErrorAction Ignore | Disable-PnpDevice -Confirm:$False -ErrorAction Ignore", runas: currentUserElevated, wait: true}
+    #desktop exc
+  - !powerShell: {command: "$c=(Get-CimInstance Win32_SystemEnclosure).ChassisTypes[0]; if($c -le 7){Get-PnpDevice -FriendlyName 'PCI standard ISA bridge' -ErrorAction Ignore|Disable-PnpDevice -Confirm:$False -ErrorAction Ignore;Get-PnpDevice -FriendlyName 'Microsoft Windows Management Interface for ACPI' -ErrorAction Ignore|Disable-PnpDevice -Confirm:$False -ErrorAction Ignore;Set-Service -Name 'WmiAcpi' -StartupType Disabled -ErrorAction Ignore;Set-Service -Name 'msisadrv' -StartupType Disabled -ErrorAction Ignore}", runas: currentUserElevated, wait: true}
+
+  # Delete Default User 0
+  - !cmd: {command: 'net user defaultuser0 /delete >nul 2>&1 & exit 0'}
+
+  # Disable Mitigations
+  - !status: {status: 'Disabling mitigations'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'MitigationOptions', type: REG_BINARY, data: '222222222222222222222222222222222222222222222222'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'MitigationAuditOptions', type: REG_BINARY, data: '222222222222222222222222222222222222222222222222'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'DisableExceptionChainValidation', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'DisableControlFlowGuardXfg', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'DisableControlFlowGuardExportSuppression', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel', value: 'DriveRemappingMitigation', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'FeatureSettingsOverride', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'FeatureSettingsOverrideMask', type: REG_DWORD, data: '3'}
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management', value: 'FeatureSettings', type: REG_DWORD, data: '1'}
+
+  # Config VBS
+  - !status: {status: 'Disabling VBS'}
+    #disablehvci
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity', value: 'Enabled', type: REG_DWORD, data: '0'}
+    #disablevbs
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard', value: 'EnableVirtualizationBasedSecurity', type: REG_DWORD, data: '0'}
+    #disablekernelshadowstacks
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\KernelShadowStacks', value: 'Enabled', type: REG_DWORD, data: '0'}
+    #disablelsaprotection
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\Lsa', value: 'RunAsPPL', type: REG_DWORD, data: '0'}
+    #disablecredentialguard
+  - !registryValue: {path: 'HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard', value: 'Enabled', type: REG_DWORD, data: '0'}
+
+  # Disable DMA Remapping
+  - !cmd: {command: '(for /f %i in (''reg query "HKLM\SYSTEM\CurrentControlSet\Services" /s /f "DmaRemappingCompatible" ^| find /i "Services\" '') do Reg.exe add "%i" /v "DmaRemappingCompatible" /t REG_DWORD /d "0" /f) >nul 2>&1', exeDir: true, wait: true, runas: currentUserElevated}
+
+  # Disable Windows Update
+  - !status: {status: 'Configuring Windows Update'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler\DevHomeUpdate'}
+  - !registryKey: {path: 'HKLM\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler\OutlookUpdate'}
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU', value: 'AUOptions', type: REG_DWORD, data: '2'} #Configure Automatic Updates 2 - Notify for download and auto install
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU', value: 'AutomaticMaintenanceEnabled', type: REG_DWORD, data: '0'} #Configure Automatic Updates
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU', value: 'NoAutoUpdate', type: REG_DWORD, data: '1'} #Configure Automatic Updates
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate', value: 'TargetReleaseVersion', type: REG_DWORD, data: '1'} #Select the target Feature Update version
+  - !powerShell: {command: 'New-Item -Path ''HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate'' -Force | Out-Null; $ver = (Get-ItemProperty ''HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'').DisplayVersion; New-ItemProperty -Path ''HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate'' -Name ''TargetReleaseVersion'' -Value 1 -PropertyType DWord -Force | Out-Null; New-ItemProperty -Path ''HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate'' -Name ''TargetReleaseVersionInfo'' -Value $ver -PropertyType String -Force | Out-Null', wait: true}
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'DisableDualScan', type: REG_DWORD, data: '1'} #Do not allow update deferral policies to cause scans against Windows Update
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization', value: 'DODownloadMode', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate', value: 'ExcludeWUDriversInQualityUpdate', type: REG_DWORD, data: '1'} #Do not include drivers with Windows Updates
+  - !registryValue: {path: 'HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer', value: 'NoAutoUpdate', type: REG_DWORD, data: '1'} #Configure Automatic Updates
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'DoNotConnectToWindowsUpdateInternetLocations', type: REG_DWORD, data: '1'} #Do not connect to any Windows Update Internet locations
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate', value: 'SetDisableUXWUAccess', type: REG_DWORD, data: '1'} #Remove access to use all Windows Update features
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching', value: 'SearchOrderConfig', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\DriverSearching', value: 'DontSearchWindowsUpdate', type: REG_DWORD, data: '1'} #Turn off Windows Update device driver searching
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Installer', value: 'DisableCoInstallers', type: REG_DWORD, data: '1'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Windows\Maps', value: 'AutoDownloadAndUpdateMapData', type: REG_DWORD, data: '0'} #Turn off Automatic Download and Update of Map Data
+  - !registryValue: {path: 'HKLM\SYSTEM\Maps', value: 'AutoUpdateEnabled', type: REG_DWORD, data: '0'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate', value: 'AutoDownload', type: REG_DWORD, data: '2'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsStore', value: 'AutoDownload', type: REG_DWORD, data: '2'} #Turn off Automatic Download and Install of updates
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\WindowsStore', value: 'DisableOSUpgrade', type: REG_DWORD, data: '1'} #Turn off the offer to update to the latest version of Windows
+  - !registryValue: {path: 'HKCU\SOFTWARE\Policies\Microsoft\WindowsStore', value: 'DisableOSUpgrade', type: REG_DWORD, data: '1'} #Turn off the offer to update to the latest version of Windows
+  - !registryValue: {path: 'HKLM\SOFTWARE\Policies\Microsoft\Speech', value: 'AllowSpeechModelUpdate', type: REG_DWORD, data: '0'} #Disllow Automatic Update of Speech Data
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'SetAllowOptionalContent', type: REG_DWORD, data: '1'} #Disable automatic optional updates
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'AllowOptionalContent', type: REG_DWORD, data: '3'} #Disable automatic optional updates
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'SetUpdateNotificationLevel', type: REG_DWORD, data: '1'} #Do not Display options for update notifications
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate', value: 'UpdateNotificationLevel', type: REG_DWORD, data: '2'} #Do not Display options for update notifications
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU', value: 'NoAUAsDefaultShutdownOption', type: REG_DWORD, data: '1'} #Do not adjust default option to 'Install Updates and Shut Down' in Shut Down Windows dialog box
+  - !registryValue: {path: 'HKCU\Software\Policies\Microsoft\Windows\WindowsUpdate\AU', value: 'NoAUAsDefaultShutdownOption', type: REG_DWORD, data: '1'} #Do not adjust default option to 'Install Updates and Shut Down' in Shut Down Windows dialog box
+  - !registryValue: {path: 'HKLM\Software\Policies\Microsoft\Windows\StorageHealth', value: 'AllowDiskHealthModelUpdates', type: REG_DWORD, data: '0'} #DisAllow downloading updates to the Disk Failure Prediction Model
+
+  # OEM Information
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation', value: 'Model', type: REG_SZ, data: 'VAIN'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation', value: 'Manufacturer', type: REG_SZ, data: 'Flashhez'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation', value: 'SupportURL', type: REG_SZ, data: 'https://vain.zone'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', value: 'EditionSubVersion', type: REG_SZ, data: 'VAIN'}
+  - !registryValue: {path: 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', value: 'RegisteredOrganization', type: REG_SZ, data: 'VAIN'}
